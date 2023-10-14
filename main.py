@@ -6,6 +6,7 @@ from time import sleep
 
 IMAGE_BATTERY_PATH = 'D:/bat.png'
 IMAGE_DIGITS_PATH = 'D:/digits.png'
+INDENT_DIGITS_FROM_HEIGHT = 0
 SEC = 5
 
 
@@ -14,8 +15,10 @@ def get_battery_percent():
     # print(f'{battery = }')
     # battery_percent = battery.percent
     # print(f'{battery_percent = }')
+
     battery_percent = randint(0, 100)    # for tests
     print(f'Random {battery_percent = }')
+
     return battery_percent
 
 
@@ -37,10 +40,12 @@ def change_percent_on_image(img_bat_original):
     battery_percent = get_battery_percent()
 
     if battery_percent == 100:
-        get_digit_img(1)
-        get_digit_img(0)
+        img_digit_one = get_digit_img(1)
+        img_digit_zero = get_digit_img(0)
 
-        pass    # draw "100"
+        img_bat_with_nums.paste(img_digit_one, (0, INDENT_DIGITS_FROM_HEIGHT))
+        img_bat_with_nums.paste(img_digit_zero, (4, INDENT_DIGITS_FROM_HEIGHT))
+        img_bat_with_nums.paste(img_digit_zero, (10, INDENT_DIGITS_FROM_HEIGHT))
     else:
         if int_digit_tens := battery_percent // 10:
             img_digit_tens = get_digit_img(int_digit_tens)
@@ -53,14 +58,14 @@ def change_percent_on_image(img_bat_original):
 
         if int_digit_tens > 0:
             # img_bat_with_nums.paste(img_digit_tens, (6, 1, 12, 7))
-            img_bat_with_nums.paste(img_digit_tens)
-            img_bat_with_nums.paste(img_digit_ones, (6, 0))
+            img_bat_with_nums.paste(img_digit_tens, (1, INDENT_DIGITS_FROM_HEIGHT))
+            img_bat_with_nums.paste(img_digit_ones, (7, INDENT_DIGITS_FROM_HEIGHT))
         else:
-            img_bat_with_nums.paste(img_digit_ones, (4, 0))
+            img_bat_with_nums.paste(img_digit_ones, (5, INDENT_DIGITS_FROM_HEIGHT))
 
-        # img_bat_with_nums.show()
-        # img_original.show()
-    # img_bat_with_nums.show()
+    print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
+    # img_original.show()
+    img_bat_with_nums.show()
     return img_bat_with_nums
 
 
@@ -72,7 +77,7 @@ def on_click(icon, item):
 def auto_check_battery_percent(self):
     self.visible = True
     print('===== i was in auto_check_battery_percent =====')
-    for _ in range(100):
+    for _ in range(0):
         self.icon = change_percent_on_image(img_battery)
         sleep(SEC)
 
