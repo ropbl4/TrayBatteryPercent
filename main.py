@@ -5,7 +5,6 @@ from PIL import Image
 from random import randint
 from time import sleep
 
-
 IMAGES_PATH = 'D:/img/'
 IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits.ico'
@@ -13,7 +12,9 @@ INDENT_DIGITS_FROM_HEIGHT = 0
 SEC = 5
 
 
-def get_battery_percent():
+def get_battery_percent() -> int:   # TODO: убедиться, что psutil.sensors_battery().percent - это int
+    """ Возвращает текущий процент батареи (целое число). """
+
     # battery = psutil.sensors_battery()
     # print(f'{battery = }')
     # battery_percent = battery.percent
@@ -25,12 +26,15 @@ def get_battery_percent():
     return battery_percent
 
 
-def get_digit_img(int_digit):
+def get_digit_img(int_digit):   # TODO: возвращает объект изображения (объект Pillow или ...)
+    """ Находит часть изображения с нужной цифрой и возвращает его, как объект изображения. """
+
     start_pixel_w = 0                   # from 0, include
     start_pixel_h = int_digit * 6
     end_pixel_w = 6                     # from 0, exclude
     end_pixel_h = start_pixel_h + 6
 
+    # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
     img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
     img_digit = img_digit.convert(mode='1', colors=1)
 
@@ -38,6 +42,8 @@ def get_digit_img(int_digit):
 
 
 def change_percent_on_image2(img_bat_original):
+    """ Помещает цифры на значок батареи (в правильные места в нужном количестве). """
+
     print("i'm in change_percent_on_image()")
     img_bat_with_nums = img_bat_original.copy()
     # img_bat_with_nums = img_bat_with_nums.convert(mode='1', colors=1)
@@ -81,9 +87,46 @@ def change_percent_on_image2(img_bat_original):
     return IMAGES_PATH+'tmp.ico'
 
 
+def bake_several_pngs_to_ico(sourcefiles, targetfile):
+    """ Объединяет несколько png в один ico (скопировал откуда-то).
+        Использовал для одного изображения в качестве очередного варианта конвертации. """
+
+    from pathlib import Path
+
+    # Write the global header
+    number_of_sources = len(sourcefiles)
+    data = bytes((0, 0, 1, 0, number_of_sources, 0))
+    offset = 6 + number_of_sources * 16
+
+    # Write the header entries for each individual image
+    for sourcefile in sourcefiles:
+        img = Image.open(sourcefile)
+        data += bytes((img.width, img.height, 0, 0, 1, 0, 32, 0, ))
+        bytesize = Path(sourcefile).stat().st_size
+        data += bytesize.to_bytes(4, byteorder="little")
+        data += offset.to_bytes(4, byteorder="little")
+        offset += bytesize
+
+    # Write the individual image data
+    for sourcefile in sourcefiles:
+        data += Path(sourcefile).read_bytes()
+
+    # Save the icon file
+    Path(targetfile).write_bytes(data)
+
+
 def change_percent_on_image(fake_parameter=None):
-    img = Image.new(mode='1', size=(16, 16), color=0)
-    color = 255
+    """ Тесты всякие...
+        pystray хочет в качестве изображение именно PIL.Image.Image-объект.
+        infi.systray принимает строку с адресом изображения и ему норм. """
+
+    # img = Image.new(mode='RGB', size=(16, 16), color=0)
+    # img = Image.open(fp=IMAGES_PATH+'bat-58.png')
+    import imageio.v3 as iio
+    import io
+    # img = iio.imread(IMAGES_PATH+'bat-58.png', plugin='ITK')
+
+    '''color = 255, 255, 255, 255
 
     offset = 1
     # ============ 1
@@ -113,19 +156,33 @@ def change_percent_on_image(fake_parameter=None):
 
     # img.show()
 
-    # return img
-    img.save(fp=IMAGES_PATH + 'tmp.ico', format='ICO', bitmap_format='bmp')
+    # return img'''
 
-    return IMAGES_PATH + 'tmp.ico'
+    img = iio.imread(IMAGES_PATH+'bat-58.ico', mode="RGBA")
+
+    output = io.BytesIO()
+    iio.imwrite(output, img, plugin="pillow", extension=".ico")
+
+    # ICO_NAME = 'tmp8.ico'
+    # iio.imwrite(IMAGES_PATH+ICO_NAME, output)
+    # img.save(fp=IMAGES_PATH+'tmp3.ico', format='ICO', bitmap_format='bmp')
+    # bake_several_pngs_to_ico([IMAGES_PATH+'bat-tr.png'], IMAGES_PATH+'tmp.ico')
+
+    return IMAGES_PATH+'bat-58.ico'
 
 
 def on_click(icon, item):
+    """ Обработчик клика/пункта меню для pystray. """
+
     icon.icon = change_percent_on_image(img_battery)
     icon.icon.show()
     # print("I'm in on_click")
 
 
 def auto_check_battery_percent(self=None):
+    """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
+        Так же пробовал использовать в infi.systray. """
+
     # self.visible = True
     print('===== i was in auto_check_battery_percent =====')
     for _ in range(10):
@@ -135,21 +192,27 @@ def auto_check_battery_percent(self=None):
 
 
 def say_hello(systray):
+    """ Обработчик клика/пункта меню для infi.systray. """
+
     print("Hello")
 
 
 def test():
+    """ Тут пробуем infi.systray. """
+
     menu_options = (("Say Hello", None, say_hello),)
-    # systray = SysTrayIcon(IMAGES_PATH + "bat_saved.ico", "", menu_options)
+    # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
     systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
     systray.start()
     # auto_check_battery_percent()
 
 
 def main():
+    """ Тут пробуем pystray. """
+
     tray_menu = pystray.Menu(pystray.MenuItem('Random percent !', on_click))
     # tray = pystray.Icon(name='Battery Percent', icon=Image.open(IMAGES_PATH+'тест.ico'), menu=tray_menu)
-    tray = pystray.Icon(name='Battery Percent', icon=Image.open(IMAGES_PATH + 'tmp.ico'), menu=tray_menu)
+    tray = pystray.Icon(name='Battery Percent', icon=Image.open(IMAGES_PATH+'tmp.ico'), menu=tray_menu)
     # tray = pystray.Icon(name='Battery Percent', icon=change_percent_on_image(img_battery), menu=tray_menu)
 
     # tray.run(auto_check_battery_percent)
@@ -162,7 +225,9 @@ if __name__ == '__main__':
 
     # print(img_battery.format, img_battery.size, img_battery.mode)
     # img_battery.show()
+
     # img_digits = Image.open(IMAGE_DIGITS_PATH)
+
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
