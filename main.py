@@ -87,97 +87,104 @@ def change_percent_on_image2(img_bat_original):
     return IMAGES_PATH+'tmp.ico'
 
 
-def bake_several_pngs_to_ico(sourcefiles, targetfile):
-    """ Объединяет несколько png в один ico (скопировал откуда-то).
-        Использовал для одного изображения в качестве очередного варианта конвертации. """
+def change_percent_on_image():
+    ...
 
-    from pathlib import Path
-
-    # Write the global header
-    number_of_sources = len(sourcefiles)
-    data = bytes((0, 0, 1, 0, number_of_sources, 0))
-    offset = 6 + number_of_sources * 16
-
-    # Write the header entries for each individual image
-    for sourcefile in sourcefiles:
-        img = Image.open(sourcefile)
-        data += bytes((img.width, img.height, 0, 0, 1, 0, 32, 0, ))
-        bytesize = Path(sourcefile).stat().st_size
-        data += bytesize.to_bytes(4, byteorder="little")
-        data += offset.to_bytes(4, byteorder="little")
-        offset += bytesize
-
-    # Write the individual image data
-    for sourcefile in sourcefiles:
-        data += Path(sourcefile).read_bytes()
-
-    # Save the icon file
-    Path(targetfile).write_bytes(data)
-
-
-def change_percent_on_image(fake_parameter=None):
-    """ Тесты всякие...
-        pystray хочет в качестве изображение именно PIL.Image.Image-объект.
-        infi.systray принимает строку с адресом изображения и ему норм. """
-
-    # img = Image.new(mode='RGB', size=(16, 16), color=0)
-    # img = Image.open(fp=IMAGES_PATH+'bat-58.png')
-    import imageio.v3 as iio
-    import io
-    # img = iio.imread(IMAGES_PATH+'bat-58.png', plugin='ITK')
-
-    '''color = 255, 255, 255, 255
-
-    offset = 1
-    # ============ 1
-    img.putpixel(xy=(offset+0, 1), value=color)
-    img.putpixel(xy=(offset+1, 0), value=color)
-    img.putpixel(xy=(offset+1, 1), value=color)
-    img.putpixel(xy=(offset+1, 2), value=color)
-    img.putpixel(xy=(offset+1, 3), value=color)
-    img.putpixel(xy=(offset+1, 4), value=color)
-    img.putpixel(xy=(offset+1, 5), value=color)
-    img.putpixel(xy=(offset+0, 5), value=color)
-    img.putpixel(xy=(offset+2, 5), value=color)
-
-    offset = 6
-    # ============ 2
-    img.putpixel(xy=(offset + 0, 1), value=color)
-    img.putpixel(xy=(offset + 1, 0), value=color)
-    img.putpixel(xy=(offset + 2, 0), value=color)
-    img.putpixel(xy=(offset + 3, 1), value=color)
-    img.putpixel(xy=(offset + 3, 2), value=color)
-    img.putpixel(xy=(offset + 2, 3), value=color)
-    img.putpixel(xy=(offset + 1, 4), value=color)
-    img.putpixel(xy=(offset + 0, 5), value=color)
-    img.putpixel(xy=(offset + 1, 5), value=color)
-    img.putpixel(xy=(offset + 2, 5), value=color)
-    img.putpixel(xy=(offset + 3, 5), value=color)
-
-    # img.show()
-
-    # return img'''
-
-    img = iio.imread(IMAGES_PATH+'bat-58.ico', mode="RGBA")
-
-    output = io.BytesIO()
-    iio.imwrite(output, img, plugin="pillow", extension=".ico")
-
-    # ICO_NAME = 'tmp8.ico'
-    # iio.imwrite(IMAGES_PATH+ICO_NAME, output)
-    # img.save(fp=IMAGES_PATH+'tmp3.ico', format='ICO', bitmap_format='bmp')
-    # bake_several_pngs_to_ico([IMAGES_PATH+'bat-tr.png'], IMAGES_PATH+'tmp.ico')
-
-    return IMAGES_PATH+'bat-58.ico'
+# def bake_several_pngs_to_ico(sourcefiles, targetfile):
+#     """ Объединяет несколько png в один ico (скопировал откуда-то).
+#         Использовал для одного изображения в качестве очередного варианта конвертации. """
+#
+#     from pathlib import Path
+#
+#     # Write the global header
+#     number_of_sources = len(sourcefiles)
+#     data = bytes((0, 0, 1, 0, number_of_sources, 0))
+#     offset = 6 + number_of_sources * 16
+#
+#     # Write the header entries for each individual image
+#     for sourcefile in sourcefiles:
+#         img = Image.open(sourcefile)
+#         data += bytes((img.width, img.height, 0, 0, 1, 0, 32, 0, ))
+#         bytesize = Path(sourcefile).stat().st_size
+#         data += bytesize.to_bytes(4, byteorder="little")
+#         data += offset.to_bytes(4, byteorder="little")
+#         offset += bytesize
+#
+#     # Write the individual image data
+#     for sourcefile in sourcefiles:
+#         data += Path(sourcefile).read_bytes()
+#
+#     # Save the icon file
+#     Path(targetfile).write_bytes(data)
 
 
-def on_click(icon, item):
+# def change_percent_on_image(fake_parameter=None):
+#     """ Тесты всякие... В частности, с imageio.v3
+#         pystray хочет в качестве изображение именно PIL.Image.Image-объект.
+#         infi.systray принимает строку с адресом изображения и ему норм. """
+#
+#     # img = Image.new(mode='RGB', size=(16, 16), color=0)
+#     # img = Image.open(fp=IMAGES_PATH+'bat-58.png')
+#     import imageio.v3 as iio
+#     import io
+#     # img = iio.imread(IMAGES_PATH+'bat-58.png', plugin='ITK')
+#
+#     '''color = 255, 255, 255, 255
+#
+#     offset = 1
+#     # ============ 1
+#     img.putpixel(xy=(offset+0, 1), value=color)
+#     img.putpixel(xy=(offset+1, 0), value=color)
+#     img.putpixel(xy=(offset+1, 1), value=color)
+#     img.putpixel(xy=(offset+1, 2), value=color)
+#     img.putpixel(xy=(offset+1, 3), value=color)
+#     img.putpixel(xy=(offset+1, 4), value=color)
+#     img.putpixel(xy=(offset+1, 5), value=color)
+#     img.putpixel(xy=(offset+0, 5), value=color)
+#     img.putpixel(xy=(offset+2, 5), value=color)
+#
+#     offset = 6
+#     # ============ 2
+#     img.putpixel(xy=(offset + 0, 1), value=color)
+#     img.putpixel(xy=(offset + 1, 0), value=color)
+#     img.putpixel(xy=(offset + 2, 0), value=color)
+#     img.putpixel(xy=(offset + 3, 1), value=color)
+#     img.putpixel(xy=(offset + 3, 2), value=color)
+#     img.putpixel(xy=(offset + 2, 3), value=color)
+#     img.putpixel(xy=(offset + 1, 4), value=color)
+#     img.putpixel(xy=(offset + 0, 5), value=color)
+#     img.putpixel(xy=(offset + 1, 5), value=color)
+#     img.putpixel(xy=(offset + 2, 5), value=color)
+#     img.putpixel(xy=(offset + 3, 5), value=color)
+#
+#     # img.show()
+#
+#     # return img'''
+#
+#     img = iio.imread(IMAGES_PATH+'bat-58.ico', mode="RGBA")
+#
+#     output = io.BytesIO()
+#     iio.imwrite(output, img, plugin="pillow", extension=".ico")
+#
+#     # ICO_NAME = 'tmp8.ico'
+#     # iio.imwrite(IMAGES_PATH+ICO_NAME, output)
+#     # img.save(fp=IMAGES_PATH+'tmp3.ico', format='ICO', bitmap_format='bmp')
+#     # bake_several_pngs_to_ico([IMAGES_PATH+'bat-tr.png'], IMAGES_PATH+'tmp.ico')
+#
+#     return IMAGES_PATH+'bat-58.ico'
+
+
+def on_click_item(icon, item):
     """ Обработчик клика/пункта меню для pystray. """
 
-    icon.icon = change_percent_on_image(img_battery)
+    # icon.icon = change_percent_on_image(img_battery)
     icon.icon.show()
     # print("I'm in on_click")
 
+
+def on_exit_item(tray):
+    tray.icon.show()
+    tray.stop()
 
 # def auto_check_battery_percent(self=None):
 #     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
@@ -191,28 +198,38 @@ def on_click(icon, item):
 #         print(f'{_ = }')
 
 
-def say_hello(systray):
-    """ Обработчик клика/пункта меню для infi.systray. """
+# def say_hello(systray):
+#     """ Обработчик клика/пункта меню для infi.systray. """
+#
+#     print("Hello")
 
-    print("Hello")
 
-
-def test():
-    """ Тут пробуем infi.systray. """
-
-    menu_options = (("Say Hello", None, say_hello),)
-    # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
-    systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
-    systray.start()
-    # auto_check_battery_percent()
+# def test():
+#     """ Тут пробуем infi.systray. """
+#
+#     menu_options = (("Say Hello", None, say_hello),)
+#     # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
+#     systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
+#     systray.start()
+#     # auto_check_battery_percent()
 
 
 def main():
     """ Тут пробуем pystray. """
 
-    tray_menu = pystray.Menu(pystray.MenuItem('Random percent !', on_click))
-    # tray = pystray.Icon(name='Battery Percent', icon=Image.open(IMAGES_PATH+'тест.ico'), menu=tray_menu)
-    tray = pystray.Icon(name='Battery Percent', icon=Image.open(IMAGES_PATH+'tmp.ico'), menu=tray_menu)
+    # ico_name = 'tmp.ico'        # чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
+    # ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
+    # ico_name = 'bat_26.ico'     # прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
+    # ico_name = 'bat_26_15x15.png'     # ошибка при выполнении (как и ..14х14).
+    # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
+    # ico_name = 'bat_26_i_15x15.ico'   # сжалась по-своему (г). Прозр. сохр.
+    ico_name = 'bat_26_i_17x17.ico'     # сжалась по-своему. Прозр. сохр.
+
+    tray_ico = Image.open(IMAGES_PATH+ico_name)
+    tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
+                             pystray.MenuItem('Exit !', on_exit_item))
+
+    tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
     # tray = pystray.Icon(name='Battery Percent', icon=change_percent_on_image(img_battery), menu=tray_menu)
 
     # tray.run(auto_check_battery_percent)
