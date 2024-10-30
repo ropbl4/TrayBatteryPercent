@@ -179,16 +179,16 @@ def on_click(icon, item):
     # print("I'm in on_click")
 
 
-def auto_check_battery_percent(self=None):
-    """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
-        Так же пробовал использовать в infi.systray. """
-
-    # self.visible = True
-    print('===== i was in auto_check_battery_percent =====')
-    for _ in range(10):
-        self.icon = change_percent_on_image(img_battery)
-        sleep(SEC)
-        print(f'{_ = }')
+# def auto_check_battery_percent(self=None):
+#     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
+#         Так же пробовал использовать в infi.systray. """
+#
+#     # self.visible = True
+#     print('===== i was in auto_check_battery_percent =====')
+#     for _ in range(10):
+#         self.icon = change_percent_on_image(img_battery)
+#         sleep(SEC)
+#         print(f'{_ = }')
 
 
 def say_hello(systray):
@@ -231,5 +231,5 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    # main()
-    test()
+    main()
+    # test()
