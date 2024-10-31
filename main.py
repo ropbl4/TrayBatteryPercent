@@ -7,7 +7,7 @@ from time import sleep
 
 IMAGES_PATH = 'D:/img/'
 IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
-IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits.ico'
+IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 INDENT_DIGITS_FROM_HEIGHT = 0
 SEC = 5
 
@@ -183,6 +183,8 @@ def on_click_item(icon, item):
 
 
 def on_exit_item(tray):
+    """ Обработчик пункта меня Exit (завершаем программу, убираем значок). """
+
     tray.icon.show()
     tray.stop()
 
@@ -223,7 +225,9 @@ def main():
     # ico_name = 'bat_26_15x15.png'     # ошибка при выполнении (как и ..14х14).
     # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
     # ico_name = 'bat_26_i_15x15.ico'   # сжалась по-своему (г). Прозр. сохр.
-    ico_name = 'bat_26_i_17x17.ico'     # сжалась по-своему. Прозр. сохр.
+    # ico_name = 'bat_26_i_17x17.ico'   # сжалась по-своему. Прозр. сохр.
+    # ico_name = 'tmp2__1_BPP.ico'      #
+    ico_name = 'tmp1__24_32_BPP.ico'
 
     tray_ico = Image.open(IMAGES_PATH+ico_name)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
