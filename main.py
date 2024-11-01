@@ -182,11 +182,18 @@ def on_click_item(icon, item):
     # print("I'm in on_click")
 
 
-def on_exit_item(tray):
+def on_exit_and_show_item(tray):
     """ Обработчик пункта меня Exit (завершаем программу, убираем значок). """
 
     tray.icon.show()
     tray.stop()
+
+
+def on_exit_item(tray):
+    """ Обработчик пункта меня Exit (завершаем программу). """
+
+    tray.stop()
+
 
 # def auto_check_battery_percent(self=None):
 #     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
@@ -226,11 +233,14 @@ def main():
     # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
     # ico_name = 'bat_26_i_15x15.ico'   # сжалась по-своему (г). Прозр. сохр.
     # ico_name = 'bat_26_i_17x17.ico'   # сжалась по-своему. Прозр. сохр.
-    # ico_name = 'tmp2__1_BPP.ico'      #
-    ico_name = 'tmp1__24_32_BPP.ico'
+    # ico_name = 'tmp2__1_BPP.ico'      # чуть-чуть сжалась, но потеряла прозрачность.
+    # ico_name = 'tmp1__24_32_BPP.ico'  # сжалась, прозр. сохр.
+    # ico_name = 'test2__dig_black_32_BPP.ico'    # сжалась, прозр. как была, так и осталась.
+    ico_name = 'tmp3__8_24_32_BPP.ico'
 
     tray_ico = Image.open(IMAGES_PATH+ico_name)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
+                             pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
                              pystray.MenuItem('Exit !', on_exit_item))
 
     tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
