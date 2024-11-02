@@ -195,32 +195,32 @@ def on_exit_item(tray):
     tray.stop()
 
 
-# def auto_check_battery_percent(self=None):
-#     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
-#         Так же пробовал использовать в infi.systray. """
-#
-#     # self.visible = True
-#     print('===== i was in auto_check_battery_percent =====')
-#     for _ in range(10):
-#         self.icon = change_percent_on_image(img_battery)
-#         sleep(SEC)
-#         print(f'{_ = }')
+def auto_check_battery_percent(self=None):
+    """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
+        Так же пробовал использовать в infi.systray. """
+
+    # self.visible = True
+    print('===== i was in auto_check_battery_percent =====')
+    for _ in range(10):
+        self.icon = change_percent_on_image(img_battery)
+        sleep(SEC)
+        print(f'{_ = }')
 
 
-# def say_hello(systray):
-#     """ Обработчик клика/пункта меню для infi.systray. """
-#
-#     print("Hello")
+def say_hello(systray):
+    """ Обработчик клика/пункта меню для infi.systray. """
+
+    print("Hello")
 
 
-# def test():
-#     """ Тут пробуем infi.systray. """
-#
-#     menu_options = (("Say Hello", None, say_hello),)
-#     # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
-#     systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
-#     systray.start()
-#     # auto_check_battery_percent()
+def test():
+    """ Тут пробуем infi.systray. """
+
+    menu_options = (("Say Hello", None, say_hello),)
+    # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
+    systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
+    systray.start()
+    # auto_check_battery_percent()
 
 
 def main():
@@ -233,10 +233,23 @@ def main():
     # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
     # ico_name = 'bat_26_i_15x15.ico'   # сжалась по-своему (г). Прозр. сохр.
     # ico_name = 'bat_26_i_17x17.ico'   # сжалась по-своему. Прозр. сохр.
-    # ico_name = 'tmp2__1_BPP.ico'      # чуть-чуть сжалась, но потеряла прозрачность.
+
+    # ico_name = 'bat 58__8_24_32_BPP.ico'    # сжалось сильно. Прозр. сохр.
+    # ico_name = 'bat 58__8_BPP.png'          # сжалось сильно. Прозр. сохр.
+    # ico_name = 'bat__4_BPP.png'             # сжалось немного, фон чёрный, как и был.
+    # ico_name = 'bat__24_32_BPP.ico'         # сжалось сильнее. Прозр. сохр.
+    # ico_name = 'bat_saved__32_BPP.ico'      # сжалось сильнее. Прозр. сохр.
+    ico_name = 'bat_tr__24_32_BPP.png'      # сжалось сильнее. Прозр. сохр.
+
+    # ico_name = 'test2__dig_black_32_BPP.ico'    # сжалась немного, прозр., кроме цифр.
     # ico_name = 'tmp1__24_32_BPP.ico'  # сжалась, прозр. сохр.
-    # ico_name = 'test2__dig_black_32_BPP.ico'    # сжалась, прозр. как была, так и осталась.
-    ico_name = 'tmp3__8_24_32_BPP.ico'
+    # ico_name = 'tmp2__1_BPP.ico'      # чуть-чуть сжалась, но потеряла прозрачность.
+    # ico_name = 'tmp3__8_24_32_BPP.ico'    # сжалась немного, но фон чёрный.
+    # ico_name = 'tmp5__24_32_BPP.ico'  # очень сжалось, фон прозр.
+    # ico_name = 'tmp6__black_24_BPP.ico'   # немножко сжалось, фон чёрный, как и был.
+    # ico_name = 'тест__4_24_32_BPP.ico'  # немного сжалось, фон чёрный, как и был.
+    # ico_name = 'тест__4_BPP.png'        # немного сжалось, фон чёрный, как и был.
+    # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # немного сжалось, фон чёрный, как и был.
 
     tray_ico = Image.open(IMAGES_PATH+ico_name)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
