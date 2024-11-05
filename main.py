@@ -35,8 +35,9 @@ def get_digit_img(int_digit):   # TODO: возвращает объект изо
     end_pixel_h = start_pixel_h + 6
 
     # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
+    img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
     img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
-    img_digit = img_digit.convert(mode='1', colors=1)
+    img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
 
     return img_digit
 
@@ -49,7 +50,8 @@ def change_percent_on_image2(img_bat_original):
     # img_bat_with_nums = img_bat_with_nums.convert(mode='1', colors=1)
     # img_original.show()
     # img_bat_with_nums.show()
-    battery_percent = get_battery_percent()
+    # battery_percent = get_battery_percent()
+    battery_percent = 26
 
     if battery_percent == 100:
         img_digit_one = get_digit_img(1)
@@ -81,10 +83,10 @@ def change_percent_on_image2(img_bat_original):
 
     # img_original.show()
     # img_bat_with_nums.show()
-    # return img_bat_with_nums
-    img_bat_with_nums.save(fp=IMAGES_PATH+'tmp.ico', format='ICO', bitmap_format='bmp')
+    return img_bat_with_nums
+    # img_bat_with_nums.save(fp=IMAGES_PATH+'tmp.ico', format='ICO', bitmap_format='bmp')
 
-    return IMAGES_PATH+'tmp.ico'
+    # return IMAGES_PATH+'tmp.ico'
 
 
 def change_percent_on_image():
@@ -227,7 +229,7 @@ def main():
     """ Тут пробуем pystray. """
 
     # ico_name = 'tmp.ico'        # чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
-    # ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
+    ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
     # ico_name = 'bat_26.ico'     # прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
     # ico_name = 'bat_26_15x15.png'     # ошибка при выполнении (как и ..14х14).
     # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
@@ -239,7 +241,7 @@ def main():
     # ico_name = 'bat__4_BPP.png'             # сжалось немного, фон чёрный, как и был.
     # ico_name = 'bat__24_32_BPP.ico'         # сжалось сильнее. Прозр. сохр.
     # ico_name = 'bat_saved__32_BPP.ico'      # сжалось сильнее. Прозр. сохр.
-    ico_name = 'bat_tr__24_32_BPP.png'      # сжалось сильнее. Прозр. сохр.
+    # ico_name = 'bat_tr__24_32_BPP.png'      # сжалось сильнее. Прозр. сохр.
 
     # ico_name = 'test2__dig_black_32_BPP.ico'    # сжалась немного, прозр., кроме цифр.
     # ico_name = 'tmp1__24_32_BPP.ico'  # сжалась, прозр. сохр.
@@ -251,12 +253,18 @@ def main():
     # ico_name = 'тест__4_BPP.png'        # немного сжалось, фон чёрный, как и был.
     # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # немного сжалось, фон чёрный, как и был.
 
+    # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
+    # ico_name = '16.png'
+    IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
+    ico_name = 'Back.png'
+
     tray_ico = Image.open(IMAGES_PATH+ico_name)
+    tray_ico_edited = change_percent_on_image2(tray_ico)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
                              pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
                              pystray.MenuItem('Exit !', on_exit_item))
 
-    tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
+    tray = pystray.Icon(name='Battery Percent', icon=tray_ico_edited, menu=tray_menu)
     # tray = pystray.Icon(name='Battery Percent', icon=change_percent_on_image(img_battery), menu=tray_menu)
 
     # tray.run(auto_check_battery_percent)
