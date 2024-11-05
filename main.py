@@ -35,9 +35,10 @@ def get_digit_img(int_digit):   # TODO: возвращает объект изо
     end_pixel_h = start_pixel_h + 6
 
     # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
-    img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
+    # img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
+    img_digits = Image.open(IMAGES_PATH+'Volume2 Default Light/Digits.png')
     img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
-    img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
+    # img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
 
     return img_digit
 
@@ -63,11 +64,11 @@ def change_percent_on_image2(img_bat_original):
     else:
         if int_digit_tens := battery_percent // 10:
             img_digit_tens = get_digit_img(int_digit_tens)
-            print(img_digit_tens.format, img_digit_tens.size, img_digit_tens.mode)
+            print(img_digit_tens.format, img_digit_tens.size, img_digit_tens.mode, '   -   img_digit_tens (cutted digit for tens)')
             # img_digit_tens.show()
         int_digit_ones = battery_percent % 10
         img_digit_ones = get_digit_img(int_digit_ones)
-        print(img_digit_ones.format, img_digit_ones.size, img_digit_ones.mode)
+        print(img_digit_ones.format, img_digit_ones.size, img_digit_ones.mode, '   -   img_digit_ones (cutted digit for ones)')
         # img_digit_ones.show()
 
         if int_digit_tens > 0:
@@ -77,9 +78,9 @@ def change_percent_on_image2(img_bat_original):
         else:
             img_bat_with_nums.paste(img_digit_ones, (5, INDENT_DIGITS_FROM_HEIGHT))
 
-    print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
+    print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode, '   -   img_bat_with_nums (result image)')
     # img_bat_with_nums = img_bat_with_nums.convert(mode='L')
-    print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
+    # print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
 
     # img_original.show()
     # img_bat_with_nums.show()
@@ -218,9 +219,15 @@ def say_hello(systray):
 def test():
     """ Тут пробуем infi.systray. """
 
+    # ico_name = 'Volume2 Default Light/Back.png'   # png вообще не может (показывает стандартную виндовую)
+    # ico_name = 'тест__4_24_32_BPP.ico'            # идеально, но она чёрная
+    # ico_name = 'tmp4__24_32_BPP.ico'              # и tmp5,6: очень сжалось. Прозр. сохр.
+    ico_name = 'tmp6__black_24_BPP.ico'             # сжалось, чёрный фон был и остался.
+
     menu_options = (("Say Hello", None, say_hello),)
-    # systray = SysTrayIcon(IMAGES_PATH+"tmp4.ico", "", menu_options)
-    systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
+    systray = SysTrayIcon(IMAGES_PATH+ico_name, "", menu_options)
+    # systray = SysTrayIcon(IMAGES_PATH+"tmp4__24_32_BPP.ico", "", menu_options)
+    # systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
     systray.start()
     # auto_check_battery_percent()
 
@@ -229,7 +236,7 @@ def main():
     """ Тут пробуем pystray. """
 
     # ico_name = 'tmp.ico'        # чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
-    ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
+    # ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
     # ico_name = 'bat_26.ico'     # прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
     # ico_name = 'bat_26_15x15.png'     # ошибка при выполнении (как и ..14х14).
     # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
@@ -250,13 +257,13 @@ def main():
     # ico_name = 'tmp5__24_32_BPP.ico'  # очень сжалось, фон прозр.
     # ico_name = 'tmp6__black_24_BPP.ico'   # немножко сжалось, фон чёрный, как и был.
     # ico_name = 'тест__4_24_32_BPP.ico'  # немного сжалось, фон чёрный, как и был.
-    # ico_name = 'тест__4_BPP.png'        # немного сжалось, фон чёрный, как и был.
+    ico_name = 'тест__4_BPP.png'        # немного сжалось, фон чёрный, как и был.
     # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # немного сжалось, фон чёрный, как и был.
 
     # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
     # ico_name = '16.png'
-    IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
-    ico_name = 'Back.png'
+    # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
+    # ico_name = 'Volume2 Default Light/Back.png'
 
     tray_ico = Image.open(IMAGES_PATH+ico_name)
     tray_ico_edited = change_percent_on_image2(tray_ico)
@@ -283,5 +290,5 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    main()
-    # test()
+    # main()
+    test()
