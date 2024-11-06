@@ -232,40 +232,47 @@ def test():
     # auto_check_battery_percent()
 
 
-def main():
-    """ Тут пробуем pystray. """
+def get_ico_name() -> str:
+    """ Возвращаем название изображения, которое сейчас тестируем. 
+        Сюда же пишем комменты о результате. """
+    
+    # ico_name = 'tmp.ico'        # pystray: чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
+    # ico_name = 'bat_26.png'     # pystray: прозрачность есть и остаётся, но картинка портится.
+    # ico_name = 'bat_26.ico'     # pystray: прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
+    # ico_name = 'bat_26_15x15.png'     # pystray: ошибка при выполнении (как и ..14х14).
+    # ico_name = 'bat_26_17x17.png'     # pystray: сжалось ещё сильнее, аж верхний ряд пикс-й на бат. исчез. Пр. сохр.
+    # ico_name = 'bat_26_i_15x15.ico'   # pystray: сжалось по-своему (г). Прозр. сохр.
+    # ico_name = 'bat_26_i_17x17.ico'   # pystray: сжалось по-своему. Прозр. сохр.
 
-    # ico_name = 'tmp.ico'        # чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
-    # ico_name = 'bat_26.png'     # прозрачность есть и остаётся, но картинка портится.
-    # ico_name = 'bat_26.ico'     # прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
-    # ico_name = 'bat_26_15x15.png'     # ошибка при выполнении (как и ..14х14).
-    # ico_name = 'bat_26_17x17.png'     # сжалась ещё сильнее, аж верхний ряд пикселей на батарее исчез. Прозр. сохр.
-    # ico_name = 'bat_26_i_15x15.ico'   # сжалась по-своему (г). Прозр. сохр.
-    # ico_name = 'bat_26_i_17x17.ico'   # сжалась по-своему. Прозр. сохр.
+    # ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
+    # ico_name = 'bat 58__8_BPP.png'          # pystray: сжалось сильно. Прозр. сохр.
+    # ico_name = 'bat__4_BPP.png'             # pystray: сжалось немного, фон чёрный, как и был.
+    # ico_name = 'bat__24_32_BPP.ico'         # pystray: сжалось сильнее. Прозр. сохр.
+    # ico_name = 'bat_saved__32_BPP.ico'      # pystray: сжалось сильнее. Прозр. сохр.
+    # ico_name = 'bat_tr__24_32_BPP.png'      # pystray: сжалось сильнее. Прозр. сохр.
 
-    # ico_name = 'bat 58__8_24_32_BPP.ico'    # сжалось сильно. Прозр. сохр.
-    # ico_name = 'bat 58__8_BPP.png'          # сжалось сильно. Прозр. сохр.
-    # ico_name = 'bat__4_BPP.png'             # сжалось немного, фон чёрный, как и был.
-    # ico_name = 'bat__24_32_BPP.ico'         # сжалось сильнее. Прозр. сохр.
-    # ico_name = 'bat_saved__32_BPP.ico'      # сжалось сильнее. Прозр. сохр.
-    # ico_name = 'bat_tr__24_32_BPP.png'      # сжалось сильнее. Прозр. сохр.
-
-    # ico_name = 'test2__dig_black_32_BPP.ico'    # сжалась немного, прозр., кроме цифр.
-    # ico_name = 'tmp1__24_32_BPP.ico'  # сжалась, прозр. сохр.
-    # ico_name = 'tmp2__1_BPP.ico'      # чуть-чуть сжалась, но потеряла прозрачность.
-    # ico_name = 'tmp3__8_24_32_BPP.ico'    # сжалась немного, но фон чёрный.
-    # ico_name = 'tmp5__24_32_BPP.ico'  # очень сжалось, фон прозр.
-    # ico_name = 'tmp6__black_24_BPP.ico'   # немножко сжалось, фон чёрный, как и был.
-    # ico_name = 'тест__4_24_32_BPP.ico'  # немного сжалось, фон чёрный, как и был.
-    ico_name = 'тест__4_BPP.png'        # немного сжалось, фон чёрный, как и был.
-    # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # немного сжалось, фон чёрный, как и был.
+    # ico_name = 'test2__dig_black_32_BPP.ico'  # pystray: сжалось немного, прозр., кроме цифр.
+    # ico_name = 'tmp1__24_32_BPP.ico'          # pystray: сжалось, прозр. сохр.
+    # ico_name = 'tmp2__1_BPP.ico'              # pystray: чуть-чуть сжалось, но потеряла прозрачность.
+    # ico_name = 'tmp3__8_24_32_BPP.ico'        # pystray: сжалось немного, но фон чёрный.
+    # ico_name = 'tmp5__24_32_BPP.ico'          # pystray: очень сжалось, фон прозр.
+    # ico_name = 'tmp6__black_24_BPP.ico'       # pystray: немножко сжалось, фон чёрный, как и был.
+    # ico_name = 'тест__4_24_32_BPP.ico'        # pystray: немного сжалось, фон чёрный, как и был.
+    ico_name = 'тест__4_BPP.png'                # pystray: немного сжалось, фон чёрный, как и был.
+    # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # pystray: немного сжалось, фон чёрный, как и был.
 
     # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
     # ico_name = '16.png'
     # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
     # ico_name = 'Volume2 Default Light/Back.png'
+    
+    return ico_name
+    
+    
+def main():
+    """ Тут пробуем pystray. """
 
-    tray_ico = Image.open(IMAGES_PATH+ico_name)
+    tray_ico = Image.open(IMAGES_PATH+get_ico_name())
     tray_ico_edited = change_percent_on_image2(tray_ico)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
                              pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
