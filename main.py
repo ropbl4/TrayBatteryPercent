@@ -299,6 +299,31 @@ def main():
     tray.run()
 
 
+def test_from_documentation():
+    from PIL import Image, ImageDraw
+
+    def create_image(width, height, color1, color2):
+        # Generate an image and draw a pattern
+        image = Image.new('RGB', (width, height), color1)
+        dc = ImageDraw.Draw(image)
+        dc.rectangle(
+            (width // 2, 0, width, height // 2),
+            fill=color2)
+        dc.rectangle(
+            (0, height // 2, width // 2, height),
+            fill=color2)
+
+        return image
+
+    # In order for the icon to be displayed, you must provide an icon
+    icon = pystray.Icon(
+        'test name',
+        icon=create_image(64, 64, 'black', 'white'))
+
+    # To finally show you icon, call run
+    icon.run()
+
+
 if __name__ == '__main__':
     # img_battery = Image.open(IMAGE_BATTERY_PATH)
     # img_battery.save(fp=IMAGES_PATH + 'bat_saved.ico', format='ICO', bitmap_format='bmp')
@@ -311,5 +336,6 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    test()
+    # test()
     main()
+    # test_from_documentation()
