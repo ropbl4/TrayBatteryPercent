@@ -219,15 +219,11 @@ def say_hello(systray):
 def test():
     """ Тут пробуем infi.systray. """
 
-    # ico_name = 'Volume2 Default Light/Back.png'   # png вообще не может (показывает стандартную виндовую)
-    # ico_name = 'тест__4_24_32_BPP.ico'            # идеально, но она чёрная
-    # ico_name = 'tmp4__24_32_BPP.ico'              # и tmp5,6: очень сжалось. Прозр. сохр.
-    ico_name = 'tmp6__black_24_BPP.ico'             # сжалось, чёрный фон был и остался.
-
     menu_options = (("Say Hello", None, say_hello),)
-    systray = SysTrayIcon(IMAGES_PATH+ico_name, "", menu_options)
+    systray = SysTrayIcon(IMAGES_PATH+get_ico_name(), "", menu_options)
     # systray = SysTrayIcon(IMAGES_PATH+"tmp4__24_32_BPP.ico", "", menu_options)
     # systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
+
     systray.start()
     # auto_check_battery_percent()
 
@@ -244,28 +240,46 @@ def get_ico_name() -> str:
     # ico_name = 'bat_26_i_15x15.ico'   # pystray: сжалось по-своему (г). Прозр. сохр.
     # ico_name = 'bat_26_i_17x17.ico'   # pystray: сжалось по-своему. Прозр. сохр.
 
-    # ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
+    ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
+    #                                             # infi: УСПЕХ ! Вообще не сжалось + прозрачность !
     # ico_name = 'bat 58__8_BPP.png'          # pystray: сжалось сильно. Прозр. сохр.
+    #                                             # infi: png не работает.
     # ico_name = 'bat__4_BPP.png'             # pystray: сжалось немного, фон чёрный, как и был.
+    #                                             # infi: png не работает.
     # ico_name = 'bat__24_32_BPP.ico'         # pystray: сжалось сильнее. Прозр. сохр.
+    #                                             # infi: и это УСПЕХ ! (Тут чисто батарея). Белая + прозр. сохр.
     # ico_name = 'bat_saved__32_BPP.ico'      # pystray: сжалось сильнее. Прозр. сохр.
+    #                                             # infi: сжалось. Прозр. сохр.
     # ico_name = 'bat_tr__24_32_BPP.png'      # pystray: сжалось сильнее. Прозр. сохр.
+    #                                             # infi: png не работает.
 
     # ico_name = 'test2__dig_black_32_BPP.ico'  # pystray: сжалось немного, прозр., кроме цифр.
+    #                                               # infi: сжалось немного, прозр., кроме цифр.
     # ico_name = 'tmp1__24_32_BPP.ico'          # pystray: сжалось, прозр. сохр.
+    #                                               # infi: сжалось, прозр. сохр.
     # ico_name = 'tmp2__1_BPP.ico'              # pystray: чуть-чуть сжалось, но потеряла прозрачность.
+    #                                               # infi: сжалось сильно, прозр. сохр.
     # ico_name = 'tmp3__8_24_32_BPP.ico'        # pystray: сжалось немного, но фон чёрный.
+    #                                               # infi: сжалось очень сильно, прозр. сохр.
+    # ico_name = 'tmp4__24_32_BPP.ico'          # pystray: очень сжалось. Прозр. сохр.
+    #                                               # infi: и tmp5,6: очень сжалось. Прозр. сохр.
     # ico_name = 'tmp5__24_32_BPP.ico'          # pystray: очень сжалось, фон прозр.
-    # ico_name = 'tmp6__black_24_BPP.ico'       # pystray: немножко сжалось, фон чёрный, как и был.
+    #                                               # infi: очень сжалось, стала ещё темнее; фон прозр.
+    # ico_name = 'tmp6__black_24_BPP.ico'       # pystray: немного сжалось, фон чёрный, как и был.
+    #                                               # infi: немного сжалось, чёрный фон был и остался.
     # ico_name = 'тест__4_24_32_BPP.ico'        # pystray: немного сжалось, фон чёрный, как и был.
-    ico_name = 'тест__4_BPP.png'                # pystray: немного сжалось, фон чёрный, как и был.
+    #                                               # infi: идеально, но она чёрная
+    # ico_name = 'тест__4_BPP.png'              # pystray: немного сжалось, фон чёрный, как и был.
+    #                                               # infi: png не работает.
     # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # pystray: немного сжалось, фон чёрный, как и был.
+    #                                                             # infi: png не работает.
 
     # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
     # ico_name = '16.png'
     # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
-    # ico_name = 'Volume2 Default Light/Back.png'
-    
+    # ico_name = 'Volume2 Default Light/Back.png'   # pystray: немного сжалось, прозр. сохр.
+    #                                                   # infi: png вообще не может (показывает стандартную виндовую)
+
     return ico_name
     
     
@@ -273,12 +287,12 @@ def main():
     """ Тут пробуем pystray. """
 
     tray_ico = Image.open(IMAGES_PATH+get_ico_name())
-    tray_ico_edited = change_percent_on_image2(tray_ico)
+    # tray_ico = change_percent_on_image2(tray_ico)
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
                              pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
                              pystray.MenuItem('Exit !', on_exit_item))
 
-    tray = pystray.Icon(name='Battery Percent', icon=tray_ico_edited, menu=tray_menu)
+    tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
     # tray = pystray.Icon(name='Battery Percent', icon=change_percent_on_image(img_battery), menu=tray_menu)
 
     # tray.run(auto_check_battery_percent)
@@ -297,5 +311,5 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    # main()
     test()
+    main()
