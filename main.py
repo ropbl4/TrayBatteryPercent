@@ -229,9 +229,9 @@ def test():
 
 
 def get_ico_name() -> str:
-    """ Возвращаем название изображения, которое сейчас тестируем. 
+    """ Возвращаем название изображения, которое сейчас тестируем.
         Сюда же пишем комменты о результате. """
-    
+
     # ico_name = 'tmp.ico'        # pystray: чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
     # ico_name = 'bat_26.png'     # pystray: прозрачность есть и остаётся, но картинка портится.
     # ico_name = 'bat_26.ico'     # pystray: прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
@@ -240,7 +240,7 @@ def get_ico_name() -> str:
     # ico_name = 'bat_26_i_15x15.ico'   # pystray: сжалось по-своему (г). Прозр. сохр.
     # ico_name = 'bat_26_i_17x17.ico'   # pystray: сжалось по-своему. Прозр. сохр.
 
-    ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
+    # ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
     #                                             # infi: УСПЕХ ! Вообще не сжалось + прозрачность !
     # ico_name = 'bat 58__8_BPP.png'          # pystray: сжалось сильно. Прозр. сохр.
     #                                             # infi: png не работает.
@@ -279,6 +279,13 @@ def get_ico_name() -> str:
     # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
     # ico_name = 'Volume2 Default Light/Back.png'   # pystray: немного сжалось, прозр. сохр.
     #                                                   # infi: png вообще не может (показывает стандартную виндовую)
+    # ico_name = '58 64x64 8 bpp.ico'               # pystray: УСПЕХ ! Впервые на pystray без сжатия + прозр. !
+    #                                                 (белый: 238-254 вместо 255, но это не заметно)
+    #                                                   # infi: УСПЕХ ! И без сжатия, и белый 255, и прозр.
+    # ico_name = '58 64x64 32 BPP.ico'              # Всё ровно так же, как с 8 BPP.
+    # ico_name = '58 32x32 8 BPP games_of_transp.ico'   # pystray: УСПЕХ ! Теперь белый 255 и у pystray ! + прозр.
+    #                                                       # infi: Тоже всё отлично: белый 255, прозр.
+    ico_name = '58 32x32 32 BPP games_of_transp.ico'    # обе чуть темнее
 
     return ico_name
     
@@ -336,6 +343,6 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    # test()
+    test()
     main()
     # test_from_documentation()
