@@ -90,9 +90,6 @@ def change_percent_on_image2(img_bat_original):
     # return IMAGES_PATH+'tmp.ico'
 
 
-def change_percent_on_image():
-    ...
-
 # def bake_several_pngs_to_ico(sourcefiles, targetfile):
 #     """ Объединяет несколько png в один ico (скопировал откуда-то).
 #         Использовал для одного изображения в качестве очередного варианта конвертации. """
@@ -119,6 +116,65 @@ def change_percent_on_image():
 #
 #     # Save the icon file
 #     Path(targetfile).write_bytes(data)
+
+
+def set_px(img, col, px):
+    """ Рисуем пиксели с учётом отступов, требуемой "ширины" пикселей для нужного разрешения. """
+
+    ifx = 2     # Indent First number - X
+    ify = 1     # Indent First number - Y
+    ibn = 2     # Indent Between Number
+    rm = 2      # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+
+    # ==== Bat ====
+    img.paste(im='white', box=(1))
+    # -------------
+
+    # ===== 1 =====
+    img.paste(im='white', box=(3 * rm, 2 * rm, 4 * rm, 3 * rm))
+    img.paste(im='white', box=(4 * rm, 1 * rm, 5 * rm, 6 * rm))
+    img.paste(im='white', box=(3 * rm, 6 * rm, 6 * rm, 7 * rm))
+    # -------------
+
+    # ===== 2 =====
+    img.paste(im='white', box=(11 * rm, 1 * rm, 12 * rm, 7 * rm))
+    img.paste(im='white', box=(8 * rm, 5 * rm, 13 * rm, 6 * rm))
+    img.paste(im='white', box=(10 * rm, 2 * rm, 11 * rm, 3 * rm))
+    img.paste(im='white', box=(9 * rm, 3 * rm, 10 * rm, 4 * rm))
+    img.paste(im='white', box=(8 * rm, 4 * rm, 9 * rm, 5 * rm))
+    # -------------
+
+
+def change_percent_on_image():
+    """ Так, а какой у нас план ?
+        - узнаём % бат.
+        - рисуем соотв-е цифры и зн. бат.
+        - размещаем на нужные места изобр-я
+        - обновляем изобр-е на значке """
+
+    img = Image.new(mode='RGBA', size=(32, 32), color=(0, 0, 0, 0))
+    # img.show()
+
+    rm = 2  # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+
+    # ==== Bat ====
+    img.paste(im='white', box=(1))
+    # -------------
+
+    # ===== 1 =====
+    img.paste(im='white', box=(3*rm, 2*rm, 4*rm, 3*rm))
+    img.paste(im='white', box=(4*rm, 1*rm, 5*rm, 6*rm))
+    img.paste(im='white', box=(3*rm, 6*rm, 6*rm, 7*rm))
+    # -------------
+
+    # ===== 2 =====
+    img.paste(im='white', box=(11*rm, 1*rm, 12*rm, 7*rm))
+    img.paste(im='white', box=(8*rm, 5*rm, 13*rm, 6*rm))
+    img.paste(im='white', box=(10*rm, 2*rm, 11*rm, 3*rm))
+    img.paste(im='white', box=(9*rm, 3*rm, 10*rm, 4*rm))
+    img.paste(im='white', box=(8*rm, 4*rm, 9*rm, 5*rm))
+    # -------------
+    img.show()
 
 
 # def change_percent_on_image(fake_parameter=None):
@@ -285,7 +341,9 @@ def get_ico_name() -> str:
     # ico_name = '58 64x64 32 BPP.ico'              # Всё ровно так же, как с 8 BPP.
     # ico_name = '58 32x32 8 BPP games_of_transp.ico'   # pystray: УСПЕХ ! Теперь белый 255 и у pystray ! + прозр.
     #                                                       # infi: Тоже всё отлично: белый 255, прозр.
-    ico_name = '58 32x32 32 BPP games_of_transp.ico'    # обе чуть темнее
+    # ico_name = '58 32x32 32 BPP games_of_transp.ico'  # обе чуть темнее
+    # ico_name = '58 32x32 32 BPP del_transp.ico'   # обе отлично: 255 + прозр.
+    ico_name = '58 32x32 8 BPP del_transp.ico'    # обе отлично
 
     return ico_name
     
@@ -343,6 +401,7 @@ if __name__ == '__main__':
     # print(img_digits.format, img_digits.size, img_digits.mode)
     # img_digits.show()
 
-    test()
-    main()
+    # test()
+    # main()
     # test_from_documentation()
+    change_percent_on_image()
