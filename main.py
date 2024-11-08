@@ -118,31 +118,15 @@ def change_percent_on_image2(img_bat_original):
 #     Path(targetfile).write_bytes(data)
 
 
-def set_px(img, col, px):
+def set_px(img: Image, px: tuple[int, int, int, int], col: str = 'white'):
     """ Рисуем пиксели с учётом отступов, требуемой "ширины" пикселей для нужного разрешения. """
 
-    ifx = 2     # Indent First number - X
-    ify = 1     # Indent First number - Y
-    ibn = 2     # Indent Between Number
+    ifx = 3     # Indent First number - X
+    ify = 0     # Indent First number - Y
+    # ibn = 2     # Indent Between Number
     rm = 2      # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
 
-    # ==== Bat ====
-    img.paste(im='white', box=(1))
-    # -------------
-
-    # ===== 1 =====
-    img.paste(im='white', box=(3 * rm, 2 * rm, 4 * rm, 3 * rm))
-    img.paste(im='white', box=(4 * rm, 1 * rm, 5 * rm, 6 * rm))
-    img.paste(im='white', box=(3 * rm, 6 * rm, 6 * rm, 7 * rm))
-    # -------------
-
-    # ===== 2 =====
-    img.paste(im='white', box=(11 * rm, 1 * rm, 12 * rm, 7 * rm))
-    img.paste(im='white', box=(8 * rm, 5 * rm, 13 * rm, 6 * rm))
-    img.paste(im='white', box=(10 * rm, 2 * rm, 11 * rm, 3 * rm))
-    img.paste(im='white', box=(9 * rm, 3 * rm, 10 * rm, 4 * rm))
-    img.paste(im='white', box=(8 * rm, 4 * rm, 9 * rm, 5 * rm))
-    # -------------
+    img.paste(im=col, box=((ifx + px[0]) * rm, (ify + px[1]) * rm, (ifx + px[2]) * rm, (ify + px[3]) * rm))
 
 
 def change_percent_on_image():
@@ -155,26 +139,42 @@ def change_percent_on_image():
     img = Image.new(mode='RGBA', size=(32, 32), color=(0, 0, 0, 0))
     # img.show()
 
-    rm = 2  # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+    ifx = 3     # Indent First number - X
+    ify = 0     # Indent First number - Y
+    # rm = 2  # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
 
     # ==== Bat ====
-    img.paste(im='white', box=(1))
+    set_px(img=img, px=(1-ifx, 9-ify, 14-ifx, 10-ify))
+    set_px(img=img, px=(1-ifx, 15-ify, 14-ifx, 16-ify))
+    set_px(img=img, px=(1-ifx, 10-ify, 2-ifx, 15-ify))
+    set_px(img=img, px=(13-ifx, 10-ify, 14-ifx, 15-ify))
+    set_px(img=img, px=(14-ifx, 11-ify, 15-ifx, 14-ify))
+
+    set_px(img=img, px=(3-ifx, 11-ify, 8-ifx, 14-ify))
     # -------------
 
     # ===== 1 =====
-    img.paste(im='white', box=(3*rm, 2*rm, 4*rm, 3*rm))
-    img.paste(im='white', box=(4*rm, 1*rm, 5*rm, 6*rm))
-    img.paste(im='white', box=(3*rm, 6*rm, 6*rm, 7*rm))
+    set_px(img=img, px=(0, 2, 1, 3))
+    set_px(img=img, px=(1, 1, 2, 6))
+    set_px(img=img, px=(0, 6, 3, 7))
     # -------------
 
-    # ===== 2 =====
-    img.paste(im='white', box=(11*rm, 1*rm, 12*rm, 7*rm))
-    img.paste(im='white', box=(8*rm, 5*rm, 13*rm, 6*rm))
-    img.paste(im='white', box=(10*rm, 2*rm, 11*rm, 3*rm))
-    img.paste(im='white', box=(9*rm, 3*rm, 10*rm, 4*rm))
-    img.paste(im='white', box=(8*rm, 4*rm, 9*rm, 5*rm))
+    # ===== 4 =====
+    set_px(img=img, px=(11-3, 1, 12-3, 7))
+    set_px(img=img, px=(8-3, 5, 13-3, 6))
+    set_px(img=img, px=(10-3, 2, 11-3, 3))
+    set_px(img=img, px=(9-3, 3, 10-3, 4))
+    set_px(img=img, px=(8-3, 4, 9-3, 5))
+    # set_px(img=img, px=(3, 1, 4, 7))  # а это откуда ? оО
+
+    # set_px(img=img, px=(0, 5, 5, 6))
+    # set_px(img=img, px=(2, 2, 3, 3))
+    # set_px(img=img, px=(1, 3, 2, 4))
+    # set_px(img=img, px=(0, 4, 1, 5))
     # -------------
-    img.show()
+    # img.show()
+
+    return img
 
 
 # def change_percent_on_image(fake_parameter=None):
@@ -233,12 +233,11 @@ def change_percent_on_image():
 #     return IMAGES_PATH+'bat-58.ico'
 
 
-def on_click_item(icon, item):
+def on_click_item(tray, item):
     """ Обработчик клика/пункта меню для pystray. """
 
     # icon.icon = change_percent_on_image(img_battery)
-    icon.icon.show()
-    # print("I'm in on_click")
+    tray.icon.show()
 
 
 def on_exit_and_show_item(tray):
@@ -351,8 +350,9 @@ def get_ico_name() -> str:
 def main():
     """ Тут пробуем pystray. """
 
-    tray_ico = Image.open(IMAGES_PATH+get_ico_name())
+    # tray_ico = Image.open(IMAGES_PATH+get_ico_name())
     # tray_ico = change_percent_on_image2(tray_ico)
+    tray_ico = change_percent_on_image()
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
                              pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
                              pystray.MenuItem('Exit !', on_exit_item))
@@ -402,6 +402,6 @@ if __name__ == '__main__':
     # img_digits.show()
 
     # test()
-    # main()
+    main()
     # test_from_documentation()
-    change_percent_on_image()
+    # change_percent_on_image()
