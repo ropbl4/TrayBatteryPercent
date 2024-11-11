@@ -159,9 +159,9 @@ def change_percent_on_image():
     # img.show()
 
     # ===== 1 =====
-    set_px(img=img[1], px=[0, 1])
-    set_px(img=img[1], px=[1, 0, 1, 4])
-    set_px(img=img[1], px=[0, 5, 2, 5])
+    set_px(img=img[1], px=[1, 1])
+    set_px(img=img[1], px=[2, 0, 2, 4])
+    set_px(img=img[1], px=[1, 5, 3, 5])
     # -------------
 
     # ===== 4 =====
@@ -188,8 +188,12 @@ def change_percent_on_image():
 
     img_main = Image.new(mode='RGBA', size=(main_size_x * rm, main_size_y * rm), color=(0, 0, 0, 0))
 
-    img_main.paste(im=img[1], box=(ifx * rm, ify * rm))
-    img_main.paste(im=img[4], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+    import random
+    rng1 = random.choice((1, 4))
+    rng2 = random.choice((1, 4))
+
+    img_main.paste(im=img[rng1], box=(ifx * rm, ify * rm))
+    img_main.paste(im=img[rng2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
     img_main.paste(im=img[10], box=(0, iby * rm))
 
     return img_main
