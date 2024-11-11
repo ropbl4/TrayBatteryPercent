@@ -118,15 +118,15 @@ def change_percent_on_image2(img_bat_original):
 #     Path(targetfile).write_bytes(data)
 
 
-def set_px(img: Image, px: tuple[int, int, int, int], col: str = 'white'):
-    """ Рисуем пиксели с учётом отступов, требуемой "ширины" пикселей для нужного разрешения. """
+def set_px(img: Image, px: list[int], col: str = 'white'):
+    """ Рисуем пиксели с учётом их требуемой "ширины" для нужного разрешения. """
 
-    ifx = 3     # Indent First number - X
-    ify = 0     # Indent First number - Y
-    # ibn = 2     # Indent Between Number
     rm = 2      # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
 
-    img.paste(im=col, box=((ifx + px[0]) * rm, (ify + px[1]) * rm, (ifx + px[2]) * rm, (ify + px[3]) * rm))
+    if len(px) == 2:
+        px.extend((px[0], px[1]))
+
+    img.paste(im=col, box=(px[0] * rm, px[1] * rm, (px[2]+1) * rm, (px[3]+1) * rm))
 
 
 def change_percent_on_image():
@@ -136,45 +136,63 @@ def change_percent_on_image():
         - размещаем на нужные места изобр-я
         - обновляем изобр-е на значке """
 
-    img = Image.new(mode='RGBA', size=(32, 32), color=(0, 0, 0, 0))
+    main_size_x = 16    # размер значка в трее - X
+    main_size_y = 16    # размер значка в трее - Y
+    digit_size_x = 5    # размер цифры - X
+    digit_size_y = 6    # размер цифры - Y
+    bat_size_x = 16     # размер батареи - X
+    bat_size_y = 7      # размер батареи - Y
+
+    ifx = 3             # Indent First number - X
+    ify = 0             # Indent First number - Y
+    ibn = 0             # Indent Between Number
+    iby = 9             # Indent Battery - Y
+    rm = 2              # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+
+    img = [None, None, None, None, None, None, None, None, None, None, None]
+    # print(img)
+    img[1] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
+    img[4] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
+    img[10] = Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0))
+    # for i in range(5): print(f'img[{i}] = {img[i]}')
+    # quit()
     # img.show()
 
-    ifx = 3     # Indent First number - X
-    ify = 0     # Indent First number - Y
-    # rm = 2  # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
-
-    # ==== Bat ====
-    set_px(img=img, px=(1-ifx, 9-ify, 14-ifx, 10-ify))
-    set_px(img=img, px=(1-ifx, 15-ify, 14-ifx, 16-ify))
-    set_px(img=img, px=(1-ifx, 10-ify, 2-ifx, 15-ify))
-    set_px(img=img, px=(13-ifx, 10-ify, 14-ifx, 15-ify))
-    set_px(img=img, px=(14-ifx, 11-ify, 15-ifx, 14-ify))
-
-    set_px(img=img, px=(3-ifx, 11-ify, 8-ifx, 14-ify))
-    # -------------
-
     # ===== 1 =====
-    set_px(img=img, px=(0, 2, 1, 3))
-    set_px(img=img, px=(1, 1, 2, 6))
-    set_px(img=img, px=(0, 6, 3, 7))
+    set_px(img=img[1], px=[0, 1])
+    set_px(img=img[1], px=[1, 0, 1, 4])
+    set_px(img=img[1], px=[0, 5, 2, 5])
     # -------------
 
     # ===== 4 =====
-    set_px(img=img, px=(11-3, 1, 12-3, 7))
-    set_px(img=img, px=(8-3, 5, 13-3, 6))
-    set_px(img=img, px=(10-3, 2, 11-3, 3))
-    set_px(img=img, px=(9-3, 3, 10-3, 4))
-    set_px(img=img, px=(8-3, 4, 9-3, 5))
-    # set_px(img=img, px=(3, 1, 4, 7))  # а это откуда ? оО
-
-    # set_px(img=img, px=(0, 5, 5, 6))
-    # set_px(img=img, px=(2, 2, 3, 3))
-    # set_px(img=img, px=(1, 3, 2, 4))
-    # set_px(img=img, px=(0, 4, 1, 5))
+    set_px(img=img[4], px=[3, 0, 3, 5])
+    set_px(img=img[4], px=[2, 1])
+    set_px(img=img[4], px=[1, 2])
+    set_px(img=img[4], px=[0, 3])
+    set_px(img=img[4], px=[0, 4, 5, 4])
     # -------------
-    # img.show()
 
-    return img
+    # ==== Bat ====
+    set_px(img=img[10], px=[1, 0, 13, 0])   # верхняя граница
+    set_px(img=img[10], px=[1, 6, 13, 6])   # нижняя граница
+    set_px(img=img[10], px=[1, 0, 1, 7])    # левая граница
+    set_px(img=img[10], px=[13, 0, 13, 7])  # правая граница
+    set_px(img=img[10], px=[14, 2, 14, 4])  # нос батареи
+
+    set_px(img=img[10], px=[3, 2, 7, 4])    # заполненность
+    # -------------
+
+    # img[1].show()
+    # img[4].show()
+    # img[10].show()
+
+    img_main = Image.new(mode='RGBA', size=(main_size_x * rm, main_size_y * rm), color=(0, 0, 0, 0))
+
+    img_main.paste(im=img[1], box=(ifx * rm, ify * rm))
+    img_main.paste(im=img[4], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+    img_main.paste(im=img[10], box=(0, iby * rm))
+
+    return img_main
 
 
 # def change_percent_on_image(fake_parameter=None):
@@ -353,6 +371,7 @@ def main():
     # tray_ico = Image.open(IMAGES_PATH+get_ico_name())
     # tray_ico = change_percent_on_image2(tray_ico)
     tray_ico = change_percent_on_image()
+    # tray_ico.show()
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
                              pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
                              pystray.MenuItem('Exit !', on_exit_item))
