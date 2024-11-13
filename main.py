@@ -145,12 +145,16 @@ def create_img_digits_list() -> list[Image]:
     iby = 9             # Indent Battery - Y
     rm = 2              # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
 
-    img = [None, None, None, None, None, None, None, None, None, None, None]
+    img = []
+    # img = [None, None, None, None, None, None, None, None, None, None, None]
     # print(img)
-    for i in range(9+1):
-        img[i] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
+
+    for _ in range(9+1):
+        img.append(Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0)))
+
     # img[4] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
-    img[10] = Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0))
+    img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
+
     # for i in range(5): print(f'img[{i}] = {img[i]}')
     # quit()
     # img.show()
@@ -167,6 +171,10 @@ def create_img_digits_list() -> list[Image]:
     set_px(img=img[1], px=[1, 1])
     set_px(img=img[1], px=[2, 0, 2, 4])
     set_px(img=img[1], px=[1, 5, 3, 5])
+
+    # set_px(img=img[1], px=[1-1, 1])
+    # set_px(img=img[1], px=[2-1, 0, 2-1, 4])
+    # set_px(img=img[1], px=[1-1, 5, 3-1, 5])
     # img[1].show()
     # -------------
 
@@ -196,7 +204,7 @@ def create_img_digits_list() -> list[Image]:
     set_px(img=img[4], px=[2, 1])
     set_px(img=img[4], px=[1, 2])
     set_px(img=img[4], px=[0, 3])
-    set_px(img=img[4], px=[0, 4, 5, 4])
+    set_px(img=img[4], px=[0, 4, 4, 4])
     # img[4].show()
     # -------------
 
@@ -215,32 +223,67 @@ def create_img_digits_list() -> list[Image]:
     set_px(img=img[6], px=[1, 5, 2, 5])
     set_px(img=img[6], px=[0, 1, 0, 4])
     set_px(img=img[6], px=[3, 3, 3, 4])
-    img[6].show()
+    # img[6].show()
     # -------------
 
     # ===== 7 =====
-    set_px(img=img[7], px=[3, 0, 3, 5])
-    img[7].show()
+    set_px(img=img[7], px=[0, 0, 3, 0])
+    set_px(img=img[7], px=[3, 1, 3, 2])
+    set_px(img=img[7], px=[2, 3])
+    set_px(img=img[7], px=[1, 4, 1, 5])
+    # img[7].show()
     # -------------
 
     # ===== 8 =====
-    set_px(img=img[8], px=[3, 0, 3, 5])
-    img[8].show()
+    set_px(img=img[8], px=[1, 0, 2, 0])
+    set_px(img=img[8], px=[1, 2, 2, 2])
+    set_px(img=img[8], px=[1, 5, 2, 5])
+    set_px(img=img[8], px=[0, 1])
+    set_px(img=img[8], px=[3, 1])
+    set_px(img=img[8], px=[0, 3, 0, 4])
+    set_px(img=img[8], px=[3, 3, 3, 4])
+    # img[8].show()
     # -------------
 
     # ===== 9 =====
-    set_px(img=img[9], px=[3, 0, 3, 5])
-    img[9].show()
+    set_px(img=img[9], px=[1, 0, 2, 0])
+    set_px(img=img[9], px=[1, 3, 2, 3])
+    set_px(img=img[9], px=[1, 5, 2, 5])
+    set_px(img=img[9], px=[0, 1, 0, 2])
+    set_px(img=img[9], px=[3, 1, 3, 4])
+    # img[9].show()
     # -------------
 
     # ==== Bat ====
-    set_px(img=img[10], px=[1, 0, 13, 0])  # верхняя граница
-    set_px(img=img[10], px=[1, 6, 13, 6])  # нижняя граница
-    set_px(img=img[10], px=[1, 0, 1, 7])  # левая граница
-    set_px(img=img[10], px=[13, 0, 13, 7])  # правая граница
-    set_px(img=img[10], px=[14, 2, 14, 4])  # нос батареи
+    # ### Нормальная
+    set_px(img=img[10], px=[1, 0, 13, 0])           # верхняя граница
+    set_px(img=img[10], px=[1, 6, 13, 6])           # нижняя граница
+    set_px(img=img[10], px=[1, 0, 1, 5])            # левая граница
+    set_px(img=img[10], px=[13, 0, 13, 5])          # правая граница
+    set_px(img=img[10], px=[14, 2, 14, 4])          # нос батареи
 
-    set_px(img=img[10], px=[3, 2, 7, 4])  # заполненность
+    # ### Шире
+    # set_px(img=img[10], px=[1, 0, 13, 0])         # верхняя граница
+    # set_px(img=img[10], px=[1, 6+1, 13, 6+1])     # нижняя граница
+    # set_px(img=img[10], px=[1, 0, 1, 6])          # левая граница
+    # set_px(img=img[10], px=[13, 0, 13, 6])        # правая граница
+    # set_px(img=img[10], px=[14, 2, 14, 4+1])      # нос батареи
+
+    # ### Длиннее
+    # set_px(img=img[10], px=[1, 0, 13+1, 0])       # верхняя граница
+    # set_px(img=img[10], px=[1, 6, 13+1, 6])       # нижняя граница
+    # set_px(img=img[10], px=[1, 0, 1, 5])          # левая граница
+    # set_px(img=img[10], px=[13+1, 0, 13+1, 5])    # правая граница
+    # set_px(img=img[10], px=[14+1, 2, 14+1, 4])    # нос батареи
+
+    # ### Шире + длиннее
+    # set_px(img=img[10], px=[1, 0, 13+1, 0])       # верхняя граница
+    # set_px(img=img[10], px=[1, 6+1, 13+1, 6+1])   # нижняя граница
+    # set_px(img=img[10], px=[1, 0, 1, 7])          # левая граница
+    # set_px(img=img[10], px=[13+1, 0, 13+1, 7])    # правая граница
+    # set_px(img=img[10], px=[14+1, 2, 14+1, 4+1])  # нос батареи
+
+    set_px(img=img[10], px=[3, 2, 7, 4])            # заполненность
     # img[10].show()
     # -------------
 
@@ -324,8 +367,11 @@ def change_percent_on_image(img: list[Image]) -> Image:
     img_main = Image.new(mode='RGBA', size=(main_size_x * rm, main_size_y * rm), color=(0, 0, 0, 0))
 
     import random
-    rng1 = random.randint(0, 4)
-    rng2 = random.randint(0, 4)
+    rng1 = random.randint(4, 4)
+    rng2 = random.randint(0, 9)
+
+    if rng1 == 1:
+        ifx -= 1
 
     img_main.paste(im=img[rng1], box=(ifx * rm, ify * rm))
     img_main.paste(im=img[rng2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
