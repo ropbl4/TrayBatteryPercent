@@ -1,15 +1,28 @@
 import psutil
 import pystray
-from infi.systray import SysTrayIcon
+# from infi.systray import SysTrayIcon
 from PIL import Image
-from random import randint
 from time import sleep
 
-IMAGES_PATH = 'D:/img/'
-IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
-IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
+# IMAGES_PATH = 'D:/img/'
+# IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
+# IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 INDENT_DIGITS_FROM_HEIGHT = 0
-SEC = 5
+REFRESH_PAUSE_SEC = 5
+
+MAIN_SIZE_X = 16
+MAIN_SIZE_Y = 16
+DIGIT_SIZE_X = 5
+DIGIT_SIZE_Y = 6
+BAT_SIZE_X = 16
+BAT_SIZE_Y = 7
+
+INDENT_FIRST_NUMBER_X = 3
+INDENT_FIRST_NUMBER_Y = 0
+INDENT_BETWEEN_NUMBERS = 0
+INDENT_BATTERY_Y = 9
+
+ICO_RESOLUTION_MULTIPLIER = 2  # 1 for 16x16, 2 for 32x32, ...
 
 
 def get_battery_percent() -> int:   # TODO: убедиться, что psutil.sensors_battery().percent - это int
@@ -19,6 +32,8 @@ def get_battery_percent() -> int:   # TODO: убедиться, что psutil.se
     # print(f'{battery = }')
     # battery_percent = battery.percent
     # print(f'{battery_percent = }')
+
+    from random import randint
 
     battery_percent = randint(0, 100)    # for tests
     print(f'Random {battery_percent = }')
@@ -121,7 +136,7 @@ def change_percent_on_image2(img_bat_original):
 def set_px(img: Image, px: list[int], col: str = 'white'):
     """ Рисуем пиксели с учётом их требуемой "ширины" для нужного разрешения. """
 
-    rm = 2      # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+    rm = ICO_RESOLUTION_MULTIPLIER
 
     if len(px) == 2:
         px.extend((px[0], px[1]))
@@ -132,32 +147,19 @@ def set_px(img: Image, px: list[int], col: str = 'white'):
 def create_img_digits_list() -> list[Image]:
     """ Создаём (рисуем) список изображений с цифрами """
 
-    main_size_x = 16    # размер значка в трее - X
-    main_size_y = 16    # размер значка в трее - Y
-    digit_size_x = 5    # размер цифры - X
-    digit_size_y = 6    # размер цифры - Y
-    bat_size_x = 16     # размер батареи - X
-    bat_size_y = 7      # размер батареи - Y
+    digit_size_x = DIGIT_SIZE_X
+    digit_size_y = DIGIT_SIZE_Y
+    bat_size_x = BAT_SIZE_X
+    bat_size_y = BAT_SIZE_Y
 
-    ifx = 2             # Indent First number - X
-    ify = 0             # Indent First number - Y
-    ibn = 0             # Indent Between Number
-    iby = 9             # Indent Battery - Y
-    rm = 2              # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+    rm = ICO_RESOLUTION_MULTIPLIER
 
     img = []
-    # img = [None, None, None, None, None, None, None, None, None, None, None]
-    # print(img)
 
     for _ in range(9+1):
         img.append(Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0)))
 
-    # img[4] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
     img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
-
-    # for i in range(5): print(f'img[{i}] = {img[i]}')
-    # quit()
-    # img.show()
 
     # ===== 0 =====
     set_px(img=img[0], px=[0, 1, 0, 4])
@@ -171,10 +173,6 @@ def create_img_digits_list() -> list[Image]:
     set_px(img=img[1], px=[1, 1])
     set_px(img=img[1], px=[2, 0, 2, 4])
     set_px(img=img[1], px=[1, 5, 3, 5])
-
-    # set_px(img=img[1], px=[1-1, 1])
-    # set_px(img=img[1], px=[2-1, 0, 2-1, 4])
-    # set_px(img=img[1], px=[1-1, 5, 3-1, 5])
     # img[1].show()
     # -------------
 
@@ -307,74 +305,37 @@ def get_img_digits_list() -> list[Image]:
         return create_img_digits_list()
 
 
-def change_percent_on_image(img: list[Image]) -> Image:
+def change_percent_on_image(img_main: Image, img: list[Image]) -> Image:
     """ Так, а какой у нас план ?
         - узнаём % бат.
         - рисуем соотв-е цифры и зн. бат.
         - размещаем на нужные места изобр-я
         - обновляем изобр-е на значке """
 
-    main_size_x = 16    # размер значка в трее - X
-    main_size_y = 16    # размер значка в трее - Y
-    digit_size_x = 5    # размер цифры - X
-    digit_size_y = 6    # размер цифры - Y
-    bat_size_x = 16     # размер батареи - X
-    bat_size_y = 7      # размер батареи - Y
+    digit_size_x = DIGIT_SIZE_X
+    ifx = INDENT_FIRST_NUMBER_X
+    ify = INDENT_FIRST_NUMBER_Y
+    ibn = INDENT_BETWEEN_NUMBERS
+    iby = INDENT_BATTERY_Y
+    rm = ICO_RESOLUTION_MULTIPLIER
 
-    ifx = 3             # Indent First number - X
-    ify = 0             # Indent First number - Y
-    ibn = 0             # Indent Between Number
-    iby = 9             # Indent Battery - Y
-    rm = 2              # ico Resolution Multiplier (1 for 16x16, 2 for 32x32, ...)
+    bat_num = get_battery_percent()
 
-    # img = [None, None, None, None, None, None, None, None, None, None, None]
-    # # print(img)
-    # img[1] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
-    # img[4] = Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0))
-    # img[10] = Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0))
-    # # for i in range(5): print(f'img[{i}] = {img[i]}')
-    # # quit()
-    # # img.show()
-    #
-    # # ===== 1 =====
-    # set_px(img=img[1], px=[1, 1])
-    # set_px(img=img[1], px=[2, 0, 2, 4])
-    # set_px(img=img[1], px=[1, 5, 3, 5])
-    # # -------------
-    #
-    # # ===== 4 =====
-    # set_px(img=img[4], px=[3, 0, 3, 5])
-    # set_px(img=img[4], px=[2, 1])
-    # set_px(img=img[4], px=[1, 2])
-    # set_px(img=img[4], px=[0, 3])
-    # set_px(img=img[4], px=[0, 4, 5, 4])
-    # # -------------
-    #
-    # # ==== Bat ====
-    # set_px(img=img[10], px=[1, 0, 13, 0])   # верхняя граница
-    # set_px(img=img[10], px=[1, 6, 13, 6])   # нижняя граница
-    # set_px(img=img[10], px=[1, 0, 1, 7])    # левая граница
-    # set_px(img=img[10], px=[13, 0, 13, 7])  # правая граница
-    # set_px(img=img[10], px=[14, 2, 14, 4])  # нос батареи
-    #
-    # set_px(img=img[10], px=[3, 2, 7, 4])    # заполненность
-    # # -------------
+    if bat_num == 100:
+        img_main.paste(im=img[1], box=(0 * rm, ify * rm))
+        img_main.paste(im=img[0], box=(4 * rm, ify * rm))
+        img_main.paste(im=img[0], box=(10 * rm, ify * rm))
+    elif bat_num < 10:
+        img_main.paste(im=img[bat_num], box=(..., ...))
+    else:
+        n1 = bat_num // 10
+    n2 = ...
 
-    # img[1].show()
-    # img[4].show()
-    # img[10].show()
-
-    img_main = Image.new(mode='RGBA', size=(main_size_x * rm, main_size_y * rm), color=(0, 0, 0, 0))
-
-    import random
-    rng1 = random.randint(4, 4)
-    rng2 = random.randint(0, 9)
-
-    if rng1 == 1:
+    if n1 == 1:
         ifx -= 1
 
-    img_main.paste(im=img[rng1], box=(ifx * rm, ify * rm))
-    img_main.paste(im=img[rng2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+    img_main.paste(im=img[n1], box=(ifx * rm, ify * rm))
+    img_main.paste(im=img[n2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
     img_main.paste(im=img[10], box=(0, iby * rm))
 
     return img_main
@@ -439,7 +400,6 @@ def change_percent_on_image(img: list[Image]) -> Image:
 def on_click_item(tray, item):
     """ Обработчик клика/пункта меню для pystray. """
 
-    # icon.icon = change_percent_on_image(img_battery)
     tray.icon.show()
 
 
@@ -453,7 +413,7 @@ def on_exit_and_show_item(tray):
 def on_rng_item(tray):
     """ Рандомим % (тестируем отображение цифр) """
 
-    tray.icon = change_percent_on_image(img_digits_list)
+    tray.icon = change_percent_on_image(img_tray_ico, img_digits_list)
 
 
 def on_exit_item(tray):
@@ -462,15 +422,15 @@ def on_exit_item(tray):
     tray.stop()
 
 
-def auto_check_battery_percent(self=None):
+def auto_check_battery_percent(tray=None):
     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray).
         Так же пробовал использовать в infi.systray. """
 
-    # self.visible = True
+    # tray.visible = True
     print('===== i was in auto_check_battery_percent =====')
     for _ in range(10):
-        self.icon = change_percent_on_image(img_digits_list)
-        sleep(SEC)
+        tray.icon = change_percent_on_image(img_tray_ico, img_digits_list)
+        sleep(REFRESH_PAUSE_SEC)
         print(f'{_ = }')
 
 
@@ -561,7 +521,7 @@ def main():
 
     # tray_ico = Image.open(IMAGES_PATH+get_ico_name())
     # tray_ico = change_percent_on_image2(tray_ico)
-    tray_ico = change_percent_on_image(img_digits_list)
+    tray_ico = change_percent_on_image(img_tray_ico, img_digits_list)
     # tray_ico.show()
 
     tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
@@ -614,6 +574,9 @@ if __name__ == '__main__':
     # img_digits.show()
 
     # test()
+    img_tray_ico = Image.new(mode='RGBA',
+                             size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
+                             color=(0, 0, 0, 0))
     img_digits_list = get_img_digits_list()
 
     main()
