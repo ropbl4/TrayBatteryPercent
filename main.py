@@ -35,9 +35,9 @@ def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sen
 
     from random import randint
 
-    rand_category = randint(1, 3)
-    # if rand_category == 1:
-    #     battery_percent = 100
+    rand_category = randint(1, 5)
+    if rand_category == 1:
+        battery_percent = 100
     if rand_category == 2:
         battery_percent = randint(0, 9)
     else:
@@ -47,21 +47,21 @@ def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sen
     return battery_percent
 
 
-def get_digit_img(int_digit):  # TODO: возвращает объект изображения (объект Pillow или ...)
-    """ Находит часть изображения с нужной цифрой и возвращает его, как объект изображения. """
-
-    start_pixel_w = 0  # from 0, include
-    start_pixel_h = int_digit * 6
-    end_pixel_w = 6  # from 0, exclude
-    end_pixel_h = start_pixel_h + 6
-
-    # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
-    # img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
-    img_digits = Image.open(IMAGES_PATH + 'Volume2 Default Light/Digits.png')
-    img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
-    # img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
-
-    return img_digit
+# def get_digit_img(int_digit):  # TODO: возвращает объект изображения (объект Pillow или ...)
+#     """ Находит часть изображения с нужной цифрой и возвращает его, как объект изображения. """
+#
+#     start_pixel_w = 0  # from 0, include
+#     start_pixel_h = int_digit * 6
+#     end_pixel_w = 6  # from 0, exclude
+#     end_pixel_h = start_pixel_h + 6
+#
+#     # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
+#     # img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
+#     img_digits = Image.open(IMAGES_PATH + 'Volume2 Default Light/Digits.png')
+#     img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
+#     # img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
+#
+#     return img_digit
 
 
 # def change_percent_on_image2(img_bat_original):
@@ -165,10 +165,11 @@ def create_img_digits_list() -> list[Image]:
 
     img = []
 
-    for _ in range(9 + 1):
+    for _ in range(10):
         img.append(Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0)))
 
-    img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
+    for _ in range(10):
+        img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
 
     # ===== 0 =====
     set_px(img=img[0], px=[0, 1, 0, 4])
@@ -262,12 +263,14 @@ def create_img_digits_list() -> list[Image]:
     # -------------
 
     # ==== Bat ====
+    # ===== 0 =====
     # ### Нормальная
-    set_px(img=img[10], px=[1, 0, 13, 0])  # верхняя граница
-    set_px(img=img[10], px=[1, 6, 13, 6])  # нижняя граница
-    set_px(img=img[10], px=[1, 0, 1, 5])  # левая граница
+    set_px(img=img[10], px=[1, 0, 13, 0])   # верхняя граница
+    set_px(img=img[10], px=[1, 6, 13, 6])   # нижняя граница
+    set_px(img=img[10], px=[1, 0, 1, 5])    # левая граница
     set_px(img=img[10], px=[13, 0, 13, 5])  # правая граница
     set_px(img=img[10], px=[14, 2, 14, 4])  # нос батареи
+    # img[10].show()
 
     # ### Шире
     # set_px(img=img[10], px=[1, 0, 13, 0])         # верхняя граница
@@ -289,9 +292,61 @@ def create_img_digits_list() -> list[Image]:
     # set_px(img=img[10], px=[1, 0, 1, 7])          # левая граница
     # set_px(img=img[10], px=[13+1, 0, 13+1, 7])    # правая граница
     # set_px(img=img[10], px=[14+1, 2, 14+1, 4+1])  # нос батареи
+    # -------------
 
-    set_px(img=img[10], px=[3, 2, 7, 4])  # заполненность
-    # img[10].show()
+    # Заполненность:
+    # ===== 10 ====
+    img[11] = img[10].copy()
+    set_px(img=img[11], px=[3, 2, 3, 4])
+    # img[11].show()
+    # -------------
+
+    # ===== 20 ====
+    img[12] = img[10].copy()
+    set_px(img=img[12], px=[3, 2, 4, 4])
+    # img[12].show()
+    # -------------
+
+    # ===== 30 ====
+    img[13] = img[10].copy()
+    set_px(img=img[13], px=[3, 2, 5, 4])
+    # img[13].show()
+    # -------------
+
+    # ===== 40 ====
+    img[14] = img[10].copy()
+    set_px(img=img[14], px=[3, 2, 6, 4])
+    # img[14].show()
+    # -------------
+
+    # ===== 50 ====
+    img[15] = img[10].copy()
+    set_px(img=img[15], px=[3, 2, 7, 4])
+    # img[15].show()
+    # -------------
+
+    # ===== 60 ====
+    img[16] = img[10].copy()
+    set_px(img=img[16], px=[3, 2, 8, 4])
+    # img[16].show()
+    # -------------
+
+    # ===== 70 ====
+    img[17] = img[10].copy()
+    set_px(img=img[17], px=[3, 2, 9, 4])
+    # img[17].show()
+    # -------------
+
+    # ===== 80 ====
+    img[18] = img[10].copy()
+    set_px(img=img[18], px=[3, 2, 10, 4])
+    # img[18].show()
+    # -------------
+
+    # ===== 90 ====
+    img[19] = img[10].copy()
+    set_px(img=img[19], px=[3, 2, 11, 4])
+    # img[19].show()
     # -------------
 
     return img
@@ -339,11 +394,14 @@ def change_percent_on_image(img_main: Image, img: list[Image]) -> Image:
         img_main.paste(im=img[1], box=(0 * rm, ify * rm))
         img_main.paste(im=img[0], box=(5 * rm, ify * rm))
         img_main.paste(im=img[0], box=(10 * rm, ify * rm))
+        n_bat = 19
     elif bat_num < 10:
         img_main.paste(im=img[bat_num], box=(5 * rm, ify * rm))
+        n_bat = 10
     else:
         n1 = bat_num // 10
         n2 = bat_num % 10
+        n_bat = n1 + 10
 
         if n1 == 1:
             ifx -= 1
@@ -352,7 +410,7 @@ def change_percent_on_image(img_main: Image, img: list[Image]) -> Image:
         img_main.paste(im=img[n2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
 
     # располагаем рисунок батареи на значок:
-    img_main.paste(im=img[10], box=(0, iby * rm))
+    img_main.paste(im=img[n_bat], box=(0, iby * rm))
 
     return img_main
 
@@ -450,86 +508,86 @@ def auto_check_battery_percent(tray=None):
         print(f'{_ = }')
 
 
-def say_hello(systray):
-    """ Обработчик клика/пункта меню для infi.systray. """
-
-    print("Hello")
-
-
-def test():
-    """ Тут пробуем infi.systray. """
-
-    menu_options = (("Say Hello", None, say_hello),)
-    systray = SysTrayIcon(IMAGES_PATH + get_ico_name(), "", menu_options)
-    # systray = SysTrayIcon(IMAGES_PATH+"tmp4__24_32_BPP.ico", "", menu_options)
-    # systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
-
-    systray.start()
-    # auto_check_battery_percent()
+# def say_hello(systray):
+#     """ Обработчик клика/пункта меню для infi.systray. """
+#
+#     print("Hello")
 
 
-def get_ico_name() -> str:
-    """ Возвращаем название изображения, которое сейчас тестируем.
-        Сюда же пишем комменты о результате. """
+# def test():
+#     """ Тут пробуем infi.systray. """
+#
+#     menu_options = (("Say Hello", None, say_hello),)
+#     systray = SysTrayIcon(IMAGES_PATH + get_ico_name(), "", menu_options)
+#     # systray = SysTrayIcon(IMAGES_PATH+"tmp4__24_32_BPP.ico", "", menu_options)
+#     # systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
+#
+#     systray.start()
+#     # auto_check_battery_percent()
 
-    # ico_name = 'tmp.ico'        # pystray: чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
-    # ico_name = 'bat_26.png'     # pystray: прозрачность есть и остаётся, но картинка портится.
-    # ico_name = 'bat_26.ico'     # pystray: прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
-    # ico_name = 'bat_26_15x15.png'     # pystray: ошибка при выполнении (как и ..14х14).
-    # ico_name = 'bat_26_17x17.png'     # pystray: сжалось ещё сильнее, аж верхний ряд пикс-й на бат. исчез. Пр. сохр.
-    # ico_name = 'bat_26_i_15x15.ico'   # pystray: сжалось по-своему (г). Прозр. сохр.
-    # ico_name = 'bat_26_i_17x17.ico'   # pystray: сжалось по-своему. Прозр. сохр.
 
-    # ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
-    #                                             # infi: УСПЕХ ! Вообще не сжалось + прозрачность !
-    # ico_name = 'bat 58__8_BPP.png'          # pystray: сжалось сильно. Прозр. сохр.
-    #                                             # infi: png не работает.
-    # ico_name = 'bat__4_BPP.png'             # pystray: сжалось немного, фон чёрный, как и был.
-    #                                             # infi: png не работает.
-    # ico_name = 'bat__24_32_BPP.ico'         # pystray: сжалось сильнее. Прозр. сохр.
-    #                                             # infi: и это УСПЕХ ! (Тут чисто батарея). Белая + прозр. сохр.
-    # ico_name = 'bat_saved__32_BPP.ico'      # pystray: сжалось сильнее. Прозр. сохр.
-    #                                             # infi: сжалось. Прозр. сохр.
-    # ico_name = 'bat_tr__24_32_BPP.png'      # pystray: сжалось сильнее. Прозр. сохр.
-    #                                             # infi: png не работает.
-
-    # ico_name = 'test2__dig_black_32_BPP.ico'  # pystray: сжалось немного, прозр., кроме цифр.
-    #                                               # infi: сжалось немного, прозр., кроме цифр.
-    # ico_name = 'tmp1__24_32_BPP.ico'          # pystray: сжалось, прозр. сохр.
-    #                                               # infi: сжалось, прозр. сохр.
-    # ico_name = 'tmp2__1_BPP.ico'              # pystray: чуть-чуть сжалось, но потеряла прозрачность.
-    #                                               # infi: сжалось сильно, прозр. сохр.
-    # ico_name = 'tmp3__8_24_32_BPP.ico'        # pystray: сжалось немного, но фон чёрный.
-    #                                               # infi: сжалось очень сильно, прозр. сохр.
-    # ico_name = 'tmp4__24_32_BPP.ico'          # pystray: очень сжалось. Прозр. сохр.
-    #                                               # infi: и tmp5,6: очень сжалось. Прозр. сохр.
-    # ico_name = 'tmp5__24_32_BPP.ico'          # pystray: очень сжалось, фон прозр.
-    #                                               # infi: очень сжалось, стала ещё темнее; фон прозр.
-    # ico_name = 'tmp6__black_24_BPP.ico'       # pystray: немного сжалось, фон чёрный, как и был.
-    #                                               # infi: немного сжалось, чёрный фон был и остался.
-    # ico_name = 'тест__4_24_32_BPP.ico'        # pystray: немного сжалось, фон чёрный, как и был.
-    #                                               # infi: идеально, но она чёрная
-    # ico_name = 'тест__4_BPP.png'              # pystray: немного сжалось, фон чёрный, как и был.
-    #                                               # infi: png не работает.
-    # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # pystray: немного сжалось, фон чёрный, как и был.
-    #                                                             # infi: png не работает.
-
-    # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
-    # ico_name = '16.png'
-    # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
-    # ico_name = 'Volume2 Default Light/Back.png'   # pystray: немного сжалось, прозр. сохр.
-    #                                                   # infi: png вообще не может (показывает стандартную виндовую)
-    # ico_name = '58 64x64 8 bpp.ico'               # pystray: УСПЕХ ! Впервые на pystray без сжатия + прозр. !
-    #                                                 (белый: 238-254 вместо 255, но это не заметно)
-    #                                                   # infi: УСПЕХ ! И без сжатия, и белый 255, и прозр.
-    # ico_name = '58 64x64 32 BPP.ico'              # Всё ровно так же, как с 8 BPP.
-    # ico_name = '58 32x32 8 BPP games_of_transp.ico'   # pystray: УСПЕХ ! Теперь белый 255 и у pystray ! + прозр.
-    #                                                       # infi: Тоже всё отлично: белый 255, прозр.
-    # ico_name = '58 32x32 32 BPP games_of_transp.ico'  # обе чуть темнее
-    # ico_name = '58 32x32 32 BPP del_transp.ico'   # обе отлично: 255 + прозр.
-    ico_name = '58 32x32 8 BPP del_transp.ico'  # обе отлично
-
-    return ico_name
+# def get_ico_name() -> str:
+#     """ Возвращаем название изображения, которое сейчас тестируем.
+#         Сюда же пишем комменты о результате. """
+#
+#     # ico_name = 'tmp.ico'        # pystray: чёрный фон. Портится в трее сразу же: без обработки (открывается норм).
+#     # ico_name = 'bat_26.png'     # pystray: прозрачность есть и остаётся, но картинка портится.
+#     # ico_name = 'bat_26.ico'     # pystray: прозрачность есть и остаётся, картинка портится (чуть лучше, чем png).
+#     # ico_name = 'bat_26_15x15.png'     # pystray: ошибка при выполнении (как и ..14х14).
+#     # ico_name = 'bat_26_17x17.png'     # pystray: сжалось ещё сильнее, аж верхний ряд пикс-й на бат. исчез. Пр. сохр.
+#     # ico_name = 'bat_26_i_15x15.ico'   # pystray: сжалось по-своему (г). Прозр. сохр.
+#     # ico_name = 'bat_26_i_17x17.ico'   # pystray: сжалось по-своему. Прозр. сохр.
+#
+#     # ico_name = 'bat 58__8_24_32_BPP.ico'    # pystray: сжалось сильно. Прозр. сохр.
+#     #                                             # infi: УСПЕХ ! Вообще не сжалось + прозрачность !
+#     # ico_name = 'bat 58__8_BPP.png'          # pystray: сжалось сильно. Прозр. сохр.
+#     #                                             # infi: png не работает.
+#     # ico_name = 'bat__4_BPP.png'             # pystray: сжалось немного, фон чёрный, как и был.
+#     #                                             # infi: png не работает.
+#     # ico_name = 'bat__24_32_BPP.ico'         # pystray: сжалось сильнее. Прозр. сохр.
+#     #                                             # infi: и это УСПЕХ ! (Тут чисто батарея). Белая + прозр. сохр.
+#     # ico_name = 'bat_saved__32_BPP.ico'      # pystray: сжалось сильнее. Прозр. сохр.
+#     #                                             # infi: сжалось. Прозр. сохр.
+#     # ico_name = 'bat_tr__24_32_BPP.png'      # pystray: сжалось сильнее. Прозр. сохр.
+#     #                                             # infi: png не работает.
+#
+#     # ico_name = 'test2__dig_black_32_BPP.ico'  # pystray: сжалось немного, прозр., кроме цифр.
+#     #                                               # infi: сжалось немного, прозр., кроме цифр.
+#     # ico_name = 'tmp1__24_32_BPP.ico'          # pystray: сжалось, прозр. сохр.
+#     #                                               # infi: сжалось, прозр. сохр.
+#     # ico_name = 'tmp2__1_BPP.ico'              # pystray: чуть-чуть сжалось, но потеряла прозрачность.
+#     #                                               # infi: сжалось сильно, прозр. сохр.
+#     # ico_name = 'tmp3__8_24_32_BPP.ico'        # pystray: сжалось немного, но фон чёрный.
+#     #                                               # infi: сжалось очень сильно, прозр. сохр.
+#     # ico_name = 'tmp4__24_32_BPP.ico'          # pystray: очень сжалось. Прозр. сохр.
+#     #                                               # infi: и tmp5,6: очень сжалось. Прозр. сохр.
+#     # ico_name = 'tmp5__24_32_BPP.ico'          # pystray: очень сжалось, фон прозр.
+#     #                                               # infi: очень сжалось, стала ещё темнее; фон прозр.
+#     # ico_name = 'tmp6__black_24_BPP.ico'       # pystray: немного сжалось, фон чёрный, как и был.
+#     #                                               # infi: немного сжалось, чёрный фон был и остался.
+#     # ico_name = 'тест__4_24_32_BPP.ico'        # pystray: немного сжалось, фон чёрный, как и был.
+#     #                                               # infi: идеально, но она чёрная
+#     # ico_name = 'тест__4_BPP.png'              # pystray: немного сжалось, фон чёрный, как и был.
+#     #                                               # infi: png не работает.
+#     # ico_name = 'тест_black-из-ico-в-png__24_32_BPP.png'     # pystray: немного сжалось, фон чёрный, как и был.
+#     #                                                             # infi: png не работает.
+#
+#     # IMAGES_PATH = 'D:\\- Volume2-master\\Assets\\MainIcon-PNGs\\'
+#     # ico_name = '16.png'
+#     # IMAGES_PATH = 'D:\\- Volume2-master\\Skins\\Volume2 Default Light\\'
+#     # ico_name = 'Volume2 Default Light/Back.png'   # pystray: немного сжалось, прозр. сохр.
+#     #                                                   # infi: png вообще не может (показывает стандартную виндовую)
+#     # ico_name = '58 64x64 8 bpp.ico'               # pystray: УСПЕХ ! Впервые на pystray без сжатия + прозр. !
+#     #                                                 (белый: 238-254 вместо 255, но это не заметно)
+#     #                                                   # infi: УСПЕХ ! И без сжатия, и белый 255, и прозр.
+#     # ico_name = '58 64x64 32 BPP.ico'              # Всё ровно так же, как с 8 BPP.
+#     # ico_name = '58 32x32 8 BPP games_of_transp.ico'   # pystray: УСПЕХ ! Теперь белый 255 и у pystray ! + прозр.
+#     #                                                       # infi: Тоже всё отлично: белый 255, прозр.
+#     # ico_name = '58 32x32 32 BPP games_of_transp.ico'  # обе чуть темнее
+#     # ico_name = '58 32x32 32 BPP del_transp.ico'   # обе отлично: 255 + прозр.
+#     ico_name = '58 32x32 8 BPP del_transp.ico'  # обе отлично
+#
+#     return ico_name
 
 
 def main():
