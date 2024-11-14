@@ -25,7 +25,7 @@ INDENT_BATTERY_Y = 9
 ICO_RESOLUTION_MULTIPLIER = 2  # 1 for 16x16, 2 for 32x32, ...
 
 
-def get_battery_percent() -> int:   # TODO: убедиться, что psutil.sensors_battery().percent - это int
+def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sensors_battery().percent - это int
     """ Возвращает текущий процент батареи (целое число). """
 
     # battery = psutil.sensors_battery()
@@ -35,74 +35,83 @@ def get_battery_percent() -> int:   # TODO: убедиться, что psutil.se
 
     from random import randint
 
-    battery_percent = randint(0, 100)    # for tests
+    rand_category = randint(1, 3)
+    # if rand_category == 1:
+    #     battery_percent = 100
+    if rand_category == 2:
+        battery_percent = randint(0, 9)
+    else:
+        battery_percent = randint(0, 100)  # for tests
     print(f'Random {battery_percent = }')
 
     return battery_percent
 
 
-def get_digit_img(int_digit):   # TODO: возвращает объект изображения (объект Pillow или ...)
+def get_digit_img(int_digit):  # TODO: возвращает объект изображения (объект Pillow или ...)
     """ Находит часть изображения с нужной цифрой и возвращает его, как объект изображения. """
 
-    start_pixel_w = 0                   # from 0, include
+    start_pixel_w = 0  # from 0, include
     start_pixel_h = int_digit * 6
-    end_pixel_w = 6                     # from 0, exclude
+    end_pixel_w = 6  # from 0, exclude
     end_pixel_h = start_pixel_h + 6
 
     # TODO: img_digits сейчас глобальная; надо или передать, или, может, она нужна только тут - тогда здесь и получить.
     # img_digits = Image.open('D:\\- Volume2-master\\Skins\\Volume2 Default Light\\Digits.png')
-    img_digits = Image.open(IMAGES_PATH+'Volume2 Default Light/Digits.png')
+    img_digits = Image.open(IMAGES_PATH + 'Volume2 Default Light/Digits.png')
     img_digit = img_digits.crop((start_pixel_w, start_pixel_h, end_pixel_w, end_pixel_h))
     # img_digit = img_digit.convert(mode='1', colors=1)     # надо ли это ?..
 
     return img_digit
 
 
-def change_percent_on_image2(img_bat_original):
-    """ Помещает цифры на значок батареи (в правильные места в нужном количестве). """
-
-    print("i'm in change_percent_on_image()")
-    img_bat_with_nums = img_bat_original.copy()
-    # img_bat_with_nums = img_bat_with_nums.convert(mode='1', colors=1)
-    # img_original.show()
-    # img_bat_with_nums.show()
-    # battery_percent = get_battery_percent()
-    battery_percent = 26
-
-    if battery_percent == 100:
-        img_digit_one = get_digit_img(1)
-        img_digit_zero = get_digit_img(0)
-
-        img_bat_with_nums.paste(img_digit_one, (0, INDENT_DIGITS_FROM_HEIGHT))
-        img_bat_with_nums.paste(img_digit_zero, (4, INDENT_DIGITS_FROM_HEIGHT))
-        img_bat_with_nums.paste(img_digit_zero, (10, INDENT_DIGITS_FROM_HEIGHT))
-    else:
-        if int_digit_tens := battery_percent // 10:
-            img_digit_tens = get_digit_img(int_digit_tens)
-            print(img_digit_tens.format, img_digit_tens.size, img_digit_tens.mode, '   -   img_digit_tens (cutted digit for tens)')
-            # img_digit_tens.show()
-        int_digit_ones = battery_percent % 10
-        img_digit_ones = get_digit_img(int_digit_ones)
-        print(img_digit_ones.format, img_digit_ones.size, img_digit_ones.mode, '   -   img_digit_ones (cutted digit for ones)')
-        # img_digit_ones.show()
-
-        if int_digit_tens > 0:
-            # img_bat_with_nums.paste(img_digit_tens, (6, 1, 12, 7))
-            img_bat_with_nums.paste(img_digit_tens, (1, INDENT_DIGITS_FROM_HEIGHT))
-            img_bat_with_nums.paste(img_digit_ones, (7, INDENT_DIGITS_FROM_HEIGHT))
-        else:
-            img_bat_with_nums.paste(img_digit_ones, (5, INDENT_DIGITS_FROM_HEIGHT))
-
-    print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode, '   -   img_bat_with_nums (result image)')
-    # img_bat_with_nums = img_bat_with_nums.convert(mode='L')
-    # print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
-
-    # img_original.show()
-    # img_bat_with_nums.show()
-    return img_bat_with_nums
-    # img_bat_with_nums.save(fp=IMAGES_PATH+'tmp.ico', format='ICO', bitmap_format='bmp')
-
-    # return IMAGES_PATH+'tmp.ico'
+# def change_percent_on_image2(img_bat_original):
+#     """ Помещает цифры на значок батареи (в правильные места в нужном количестве). """
+#
+#     print("i'm in change_percent_on_image()")
+#     img_bat_with_nums = img_bat_original.copy()
+#     # img_bat_with_nums = img_bat_with_nums.convert(mode='1', colors=1)
+#     # img_original.show()
+#     # img_bat_with_nums.show()
+#     # battery_percent = get_battery_percent()
+#     battery_percent = 26
+#
+#     if battery_percent == 100:
+#         img_digit_one = get_digit_img(1)
+#         img_digit_zero = get_digit_img(0)
+#
+#         img_bat_with_nums.paste(img_digit_one, (0, INDENT_DIGITS_FROM_HEIGHT))
+#         img_bat_with_nums.paste(img_digit_zero, (4, INDENT_DIGITS_FROM_HEIGHT))
+#         img_bat_with_nums.paste(img_digit_zero, (10, INDENT_DIGITS_FROM_HEIGHT))
+#     else:
+#         if int_digit_tens := battery_percent // 10:
+#             img_digit_tens = get_digit_img(int_digit_tens)
+#             print(img_digit_tens.format, img_digit_tens.size, img_digit_tens.mode,
+#                   '   -   img_digit_tens (cutted digit for tens)')
+#             # img_digit_tens.show()
+#         int_digit_ones = battery_percent % 10
+#         img_digit_ones = get_digit_img(int_digit_ones)
+#         print(img_digit_ones.format, img_digit_ones.size, img_digit_ones.mode,
+#               '   -   img_digit_ones (cutted digit for ones)')
+#         # img_digit_ones.show()
+#
+#         if int_digit_tens > 0:
+#             # img_bat_with_nums.paste(img_digit_tens, (6, 1, 12, 7))
+#             img_bat_with_nums.paste(img_digit_tens, (1, INDENT_DIGITS_FROM_HEIGHT))
+#             img_bat_with_nums.paste(img_digit_ones, (7, INDENT_DIGITS_FROM_HEIGHT))
+#         else:
+#             img_bat_with_nums.paste(img_digit_ones, (5, INDENT_DIGITS_FROM_HEIGHT))
+#
+#     print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode,
+#           '   -   img_bat_with_nums (result image)')
+#     # img_bat_with_nums = img_bat_with_nums.convert(mode='L')
+#     # print(img_bat_with_nums.format, img_bat_with_nums.size, img_bat_with_nums.mode)
+#
+#     # img_original.show()
+#     # img_bat_with_nums.show()
+#     return img_bat_with_nums
+#     # img_bat_with_nums.save(fp=IMAGES_PATH+'tmp.ico', format='ICO', bitmap_format='bmp')
+#
+#     # return IMAGES_PATH+'tmp.ico'
 
 
 # def bake_several_pngs_to_ico(sourcefiles, targetfile):
@@ -141,7 +150,7 @@ def set_px(img: Image, px: list[int], col: str = 'white'):
     if len(px) == 2:
         px.extend((px[0], px[1]))
 
-    img.paste(im=col, box=(px[0] * rm, px[1] * rm, (px[2]+1) * rm, (px[3]+1) * rm))
+    img.paste(im=col, box=(px[0] * rm, px[1] * rm, (px[2] + 1) * rm, (px[3] + 1) * rm))
 
 
 def create_img_digits_list() -> list[Image]:
@@ -156,7 +165,7 @@ def create_img_digits_list() -> list[Image]:
 
     img = []
 
-    for _ in range(9+1):
+    for _ in range(9 + 1):
         img.append(Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0)))
 
     img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
@@ -254,11 +263,11 @@ def create_img_digits_list() -> list[Image]:
 
     # ==== Bat ====
     # ### Нормальная
-    set_px(img=img[10], px=[1, 0, 13, 0])           # верхняя граница
-    set_px(img=img[10], px=[1, 6, 13, 6])           # нижняя граница
-    set_px(img=img[10], px=[1, 0, 1, 5])            # левая граница
-    set_px(img=img[10], px=[13, 0, 13, 5])          # правая граница
-    set_px(img=img[10], px=[14, 2, 14, 4])          # нос батареи
+    set_px(img=img[10], px=[1, 0, 13, 0])  # верхняя граница
+    set_px(img=img[10], px=[1, 6, 13, 6])  # нижняя граница
+    set_px(img=img[10], px=[1, 0, 1, 5])  # левая граница
+    set_px(img=img[10], px=[13, 0, 13, 5])  # правая граница
+    set_px(img=img[10], px=[14, 2, 14, 4])  # нос батареи
 
     # ### Шире
     # set_px(img=img[10], px=[1, 0, 13, 0])         # верхняя граница
@@ -281,7 +290,7 @@ def create_img_digits_list() -> list[Image]:
     # set_px(img=img[10], px=[13+1, 0, 13+1, 7])    # правая граница
     # set_px(img=img[10], px=[14+1, 2, 14+1, 4+1])  # нос батареи
 
-    set_px(img=img[10], px=[3, 2, 7, 4])            # заполненность
+    set_px(img=img[10], px=[3, 2, 7, 4])  # заполненность
     # img[10].show()
     # -------------
 
@@ -299,7 +308,7 @@ def get_img_digits_list() -> list[Image]:
     """ Возвращает список изображений с цифрами и батареей,
         полученный с картинок или, если их нет, нарисованный. """
 
-    if False:   # если найдена папка /img/ и в ней есть картинка с цифрами и батареей...
+    if False:  # если найдена папка /img/ и в ней есть картинка с цифрами и батареей...
         return get_from_image_img_digits_list()
     else:
         return create_img_digits_list()
@@ -308,9 +317,9 @@ def get_img_digits_list() -> list[Image]:
 def change_percent_on_image(img_main: Image, img: list[Image]) -> Image:
     """ Так, а какой у нас план ?
         - узнаём % бат.
-        - рисуем соотв-е цифры и зн. бат.
-        - размещаем на нужные места изобр-я
-        - обновляем изобр-е на значке """
+        - рисуем цифры и зн. бат. (нарисовали всё один раз при запуске)
+        - размещаем соотв-е изобр-я на нужные места
+        - обновляем изобр-е на значке (в другой функции) """
 
     digit_size_x = DIGIT_SIZE_X
     ifx = INDENT_FIRST_NUMBER_X
@@ -319,23 +328,30 @@ def change_percent_on_image(img_main: Image, img: list[Image]) -> Image:
     iby = INDENT_BATTERY_Y
     rm = ICO_RESOLUTION_MULTIPLIER
 
+    # получаем % заряда батареи:
     bat_num = get_battery_percent()
 
+    # очищаем значок от предыдущих цифр прозрачным прямоугольником:
+    img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
+
+    # располагаем цифры на значок в нужные места:
     if bat_num == 100:
         img_main.paste(im=img[1], box=(0 * rm, ify * rm))
-        img_main.paste(im=img[0], box=(4 * rm, ify * rm))
+        img_main.paste(im=img[0], box=(5 * rm, ify * rm))
         img_main.paste(im=img[0], box=(10 * rm, ify * rm))
     elif bat_num < 10:
-        img_main.paste(im=img[bat_num], box=(..., ...))
+        img_main.paste(im=img[bat_num], box=(5 * rm, ify * rm))
     else:
         n1 = bat_num // 10
-    n2 = ...
+        n2 = bat_num % 10
 
-    if n1 == 1:
-        ifx -= 1
+        if n1 == 1:
+            ifx -= 1
 
-    img_main.paste(im=img[n1], box=(ifx * rm, ify * rm))
-    img_main.paste(im=img[n2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+        img_main.paste(im=img[n1], box=(ifx * rm, ify * rm))
+        img_main.paste(im=img[n2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+
+    # располагаем рисунок батареи на значок:
     img_main.paste(im=img[10], box=(0, iby * rm))
 
     return img_main
@@ -444,7 +460,7 @@ def test():
     """ Тут пробуем infi.systray. """
 
     menu_options = (("Say Hello", None, say_hello),)
-    systray = SysTrayIcon(IMAGES_PATH+get_ico_name(), "", menu_options)
+    systray = SysTrayIcon(IMAGES_PATH + get_ico_name(), "", menu_options)
     # systray = SysTrayIcon(IMAGES_PATH+"tmp4__24_32_BPP.ico", "", menu_options)
     # systray = SysTrayIcon(change_percent_on_image(), "", menu_options)
 
@@ -511,11 +527,11 @@ def get_ico_name() -> str:
     #                                                       # infi: Тоже всё отлично: белый 255, прозр.
     # ico_name = '58 32x32 32 BPP games_of_transp.ico'  # обе чуть темнее
     # ico_name = '58 32x32 32 BPP del_transp.ico'   # обе отлично: 255 + прозр.
-    ico_name = '58 32x32 8 BPP del_transp.ico'    # обе отлично
+    ico_name = '58 32x32 8 BPP del_transp.ico'  # обе отлично
 
     return ico_name
-    
-    
+
+
 def main():
     """ Тут пробуем pystray. """
 
