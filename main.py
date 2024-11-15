@@ -7,7 +7,7 @@ from time import sleep
 # IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
-REFRESH_PAUSE_SEC = 2
+REFRESH_PAUSE_SEC = 5
 
 MAIN_SIZE_X = 16
 MAIN_SIZE_Y = 16
@@ -27,10 +27,10 @@ ICO_RESOLUTION_MULTIPLIER = 2  # 1 for 16x16, 2 for 32x32, ...
 def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sensors_battery().percent - это int
     """ Возвращает текущий процент батареи (целое число). """
 
-    # battery = psutil.sensors_battery()
-    # print(f'{battery = }')
-    # battery_percent = battery.percent
-    # print(f'{battery_percent = }')
+    battery = psutil.sensors_battery()  # TODO: добавить статус подключённой зарядки ?
+    print(f'{battery = }')
+    battery_percent = battery.percent
+    print(f'{battery_percent = }')
 
     # from random import randint
     #
@@ -45,7 +45,7 @@ def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sen
     # print(f'Random {battery_percent = }')
 
     # battery_percent = change_percent_on_image.cur_bp - 1
-    battery_percent = g_current_battery_percent - 1
+    # battery_percent = g_current_battery_percent - 1
 
     return battery_percent
 
@@ -236,7 +236,7 @@ def get_img_digits_list() -> list[Image]:
 
 def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int) -> Image:
     """ Вставляет на значок изображения с нужными цифрами и батареей в правильные места. """
-
+    print('I refresh %')
     digit_size_x = DIGIT_SIZE_X
     ifx = INDENT_FIRST_NUMBER_X
     ify = INDENT_FIRST_NUMBER_Y
@@ -257,7 +257,8 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int) ->
 
     # очищаем значок от предыдущих цифр прозрачным прямоугольником:
     img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
-
+    # TODO: перерис. только нужные цифры
+    
     # располагаем цифры на значок в нужные места:
     if bat_perc == 100:
         img_main.paste(im=img[1], box=(0 * rm, ify * rm))
@@ -305,10 +306,7 @@ def on_refresh_item(tray):
     battery_percent = get_battery_percent()
     g_current_battery_percent = battery_percent
 
-    ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-
-    if ico:
-        tray.icon = ico
+    tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
 
 
 def on_exit_item(tray):
@@ -324,29 +322,30 @@ def auto_check_battery_percent(tray) -> None:
 
     tray.visible = True
     print('===== i was in auto_check_battery_percent =====')
-    for _ in range(10):
+    for _ in range(1000000000):
         battery_percent = get_battery_percent()
 
         if battery_percent != g_current_battery_percent:
             g_current_battery_percent = battery_percent
             tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-            sleep(REFRESH_PAUSE_SEC)
-            print(f'{_ = }')
+
+        sleep(REFRESH_PAUSE_SEC)
+        print(f'{_ = }')
 
 
 def main():
     """ Создаёт объект значка в трее с изображением и меню. """
 
+    global g_current_battery_percent
     # change_percent_on_image.cur_bp = 101
 
     battery_percent = get_battery_percent()
+    g_current_battery_percent = battery_percent
 
     tray_ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
 
-    tray_menu = pystray.Menu(pystray.MenuItem('On click !', on_click_item),
-                             pystray.MenuItem('Exit + Show !', on_exit_and_show_item),
-                             pystray.MenuItem(text='Randomize % !', action=on_refresh_item, default=True),
-                             pystray.MenuItem('Exit !', on_exit_item))
+    tray_menu = pystray.Menu(pystray.MenuItem(text='Refresh % !', action=on_refresh_item, default=True),
+                             pystray.MenuItem(text='Exit !', action=on_exit_item))
 
     tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
 
