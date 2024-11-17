@@ -24,13 +24,13 @@ INDENT_BATTERY_Y = 9
 ICO_RESOLUTION_MULTIPLIER = 2  # 1 for 16x16, 2 for 32x32, ...
 
 
-def get_battery_percent() -> int:  # TODO: убедиться, что psutil.sensors_battery().percent - это int
+def get_battery_percent() -> int:
     """ Возвращает текущий процент батареи (целое число). """
 
     battery = psutil.sensors_battery()  # TODO: добавить статус подключённой зарядки ?
     print(f'{battery = }')
     battery_percent = battery.percent
-    print(f'{battery_percent = }')
+    # print(f'{battery_percent = } | {type(battery_percent) = }')
 
     # from random import randint
     #
@@ -217,6 +217,7 @@ def create_img_digits_list() -> list[Image]:
     return img
 
 
+# todo: если есть изображения цифр и батареи в определённой папке - по_CROP_ать их оттуда и заполнить список ими.
 def get_from_image_img_digits_list() -> list[Image]:
     """ Вырезает цифры и батарею с изображений на диске,
         заполняет ими массив объектов PIL.Image. """
@@ -243,17 +244,6 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int) ->
     ibn = INDENT_BETWEEN_NUMBERS
     iby = INDENT_BATTERY_Y
     rm = ICO_RESOLUTION_MULTIPLIER
-
-    # # получаем % заряда батареи:
-    # bat_perc = get_battery_percent()     # TODO: вынести отдельно ?
-
-    # if bat_perc == change_percent_on_image.cur_bp:
-    #     print('return')
-    #     return
-    #
-    # print('I was after bet_num == current...')
-    #
-    # change_percent_on_image.cur_bp = bat_perc
 
     # очищаем значок от предыдущих цифр прозрачным прямоугольником:
     img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
@@ -285,19 +275,6 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int) ->
     return img_main
 
 
-def on_click_item(tray, item):
-    """ Обработчик клика/пункта меню для pystray. """
-
-    tray.icon.show()
-
-
-def on_exit_and_show_item(tray):
-    """ Обработчик пункта меня Exit (завершаем программу, убираем значок). """
-
-    tray.icon.show()
-    tray.stop()
-
-
 def on_refresh_item(tray):
     """ Принудительное обновление изображения значка (даже если % совпадает). """
 
@@ -307,12 +284,16 @@ def on_refresh_item(tray):
     g_current_battery_percent = battery_percent
 
     tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
+    tray.title = str(battery_percent) + '%'
 
 
 def on_exit_item(tray):
     """ Обработчик пункта меню Exit (завершает программу). """
 
     tray.stop()
+
+    global g_stop
+    g_stop = True
 
 
 def auto_check_battery_percent(tray) -> None:
@@ -321,16 +302,20 @@ def auto_check_battery_percent(tray) -> None:
     global g_current_battery_percent
 
     tray.visible = True
-    print('===== i was in auto_check_battery_percent =====')
+
     for _ in range(1000000000):
+        if g_stop:
+            break
+
         battery_percent = get_battery_percent()
 
         if battery_percent != g_current_battery_percent:
             g_current_battery_percent = battery_percent
             tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
+            tray.title = str(battery_percent) + '%'
 
         sleep(REFRESH_PAUSE_SEC)
-        print(f'{_ = }')
+        print(f'{_ = } | ', end='')
 
 
 def main():
@@ -343,11 +328,11 @@ def main():
     g_current_battery_percent = battery_percent
 
     tray_ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-
+    tray_title = str(battery_percent) + '%'
     tray_menu = pystray.Menu(pystray.MenuItem(text='Refresh % !', action=on_refresh_item, default=True),
                              pystray.MenuItem(text='Exit !', action=on_exit_item))
-
-    tray = pystray.Icon(name='Battery Percent', icon=tray_ico, menu=tray_menu)
+    tray = pystray.Icon(name='Battery Percent', icon=tray_ico, title=tray_title, menu=tray_menu)
+    tray.SETUP_THREAD_TIMEOUT = 0
 
     tray.run(auto_check_battery_percent)
     # tray.run()
@@ -355,9 +340,14 @@ def main():
 
 if __name__ == '__main__':
     g_current_battery_percent = 101
+    g_stop = False
     img_tray_ico = Image.new(mode='RGBA',
                              size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
                              color=(0, 0, 0, 0))
     img_digits_list = get_img_digits_list()
 
     main()
+
+# todo: what's on PC ?..
+# todo: move 2 painting funcs to separate module
+# todo: less PAUSE_SEC if < 21%
