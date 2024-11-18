@@ -23,14 +23,19 @@ INDENT_BATTERY_Y = 9
 
 ICO_RESOLUTION_MULTIPLIER = 2  # 1 for 16x16, 2 for 32x32, ...
 
+NO_BATTERY_TEXT = 'No Battery (are we on PC ?)'
 
-def get_battery_percent() -> int:
+
+def get_battery_percent() -> int | None:
     """ Возвращает текущий процент батареи (целое число). """
 
     battery = psutil.sensors_battery()  # TODO: добавить статус подключённой зарядки ?
     print(f'{battery = }')
+
+    if battery is None:
+        return None
+
     battery_percent = battery.percent
-    # print(f'{battery_percent = } | {type(battery_percent) = }')
 
     # from random import randint
     #
@@ -44,7 +49,6 @@ def get_battery_percent() -> int:
     #     battery_percent = randint(0, 100)  # for tests
     # print(f'Random {battery_percent = }')
 
-    # battery_percent = change_percent_on_image.cur_bp - 1
     # battery_percent = g_current_battery_percent - 1
 
     return battery_percent
@@ -68,16 +72,23 @@ def create_img_digits_list() -> list[Image]:
     digit_size_y = DIGIT_SIZE_Y
     bat_size_x = BAT_SIZE_X
     bat_size_y = BAT_SIZE_Y
+    no_bat_size_x = MAIN_SIZE_X
+    no_bat_size_y = MAIN_SIZE_Y
 
     rm = ICO_RESOLUTION_MULTIPLIER
 
     img = []
 
+    # img[0-9]:
     for _ in range(10):
         img.append(Image.new(mode='RGBA', size=(digit_size_x * rm, digit_size_y * rm), color=(0, 0, 0, 0)))
 
+    # img[10-19]:
     for _ in range(10):
         img.append(Image.new(mode='RGBA', size=(bat_size_x * rm, bat_size_y * rm), color=(0, 0, 0, 0)))
+
+    # img[20]:
+    img.append(Image.new(mode='RGBA', size=(no_bat_size_x * rm, no_bat_size_y * rm), color=(0, 0, 0, 0)))
 
     # ===== 0 =====
     set_px(img=img[0], px=[0, 1, 0, 4])
@@ -214,6 +225,14 @@ def create_img_digits_list() -> list[Image]:
     set_px(img=img[19], px=[3, 2, 11, 4])
     # -------------
 
+    # === No Bat ==
+    img[20].paste(im=img[11], box=(0, 5 * rm))
+    for i in range(no_bat_size_x):
+        set_px(img=img[20], px=[i, i], col='red')
+    for i in range(no_bat_size_x):
+        set_px(img=img[20], px=[no_bat_size_x - 1 - i, i], col='red')
+    # -------------
+
     return img
 
 
@@ -235,9 +254,14 @@ def get_img_digits_list() -> list[Image]:
         return create_img_digits_list()
 
 
-def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int) -> Image:
+def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | None) -> Image:
     """ Вставляет на значок изображения с нужными цифрами и батареей в правильные места. """
+
     print('I refresh %')
+    # если нет батареи (мы на PC):
+    if bat_perc is None:
+        return img[20]
+
     digit_size_x = DIGIT_SIZE_X
     ifx = INDENT_FIRST_NUMBER_X
     ify = INDENT_FIRST_NUMBER_Y
@@ -284,7 +308,7 @@ def on_refresh_item(tray):
     g_current_battery_percent = battery_percent
 
     tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-    tray.title = str(battery_percent) + '%'
+    tray.title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
 
 
 def on_exit_item(tray):
@@ -312,7 +336,7 @@ def auto_check_battery_percent(tray) -> None:
         if battery_percent != g_current_battery_percent:
             g_current_battery_percent = battery_percent
             tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-            tray.title = str(battery_percent) + '%'
+            tray.title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
 
         sleep(REFRESH_PAUSE_SEC)
         print(f'{_ = } | ', end='')
@@ -322,19 +346,18 @@ def main():
     """ Создаёт объект значка в трее с изображением и меню. """
 
     global g_current_battery_percent
-    # change_percent_on_image.cur_bp = 101
 
     battery_percent = get_battery_percent()
     g_current_battery_percent = battery_percent
 
     tray_ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
-    tray_title = str(battery_percent) + '%'
+    tray_title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
     tray_menu = pystray.Menu(pystray.MenuItem(text='Refresh % !', action=on_refresh_item, default=True),
                              pystray.MenuItem(text='Exit !', action=on_exit_item))
     tray = pystray.Icon(name='Battery Percent', icon=tray_ico, title=tray_title, menu=tray_menu)
     tray.SETUP_THREAD_TIMEOUT = 0
 
-    tray.run(auto_check_battery_percent)
+    tray.run(setup=auto_check_battery_percent)
     # tray.run()
 
 
@@ -351,3 +374,4 @@ if __name__ == '__main__':
 # todo: what's on PC ?..
 # todo: move 2 painting funcs to separate module
 # todo: less PAUSE_SEC if < 21%
+# todo: light theme
