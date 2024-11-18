@@ -88,10 +88,16 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
     ibn = INDENT_BETWEEN_NUMBERS
     iby = INDENT_BATTERY_Y
     rm = ICO_RESOLUTION_MULTIPLIER
+    prev_bat = g_previous_battery_percent
 
-    # очищаем значок от предыдущих цифр прозрачным прямоугольником:
-    img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
+    # если кол-во цифр в числе уменьшается (или десятки = 1, т.к. 1 уезжает правее для ровности) - ...
+    # ... очищаем значок от предыдущих цифр прозрачным прямоугольником:
+    if (prev_bat == 100) or (prev_bat >= 20 > bat_perc) or (prev_bat >= 10 > bat_perc):
+        img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
+
     # TODO: перерис. только нужные цифры
+    n_tens = bat_perc // 10
+    n_prev = prev_bat // 10
 
     # располагаем цифры на значок в нужные места:
     if bat_perc == 100:
@@ -103,18 +109,19 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
         img_main.paste(im=img[bat_perc], box=(5 * rm, ify * rm))
         n_bat = 10
     else:
-        n1 = bat_perc // 10
-        n2 = bat_perc % 10
-        n_bat = n1 + 10
+        n_ones = bat_perc % 10
+        n_bat = n_tens + 10
 
-        if n1 == 1:
+        if n_tens == 1:
             ifx -= 1
 
-        img_main.paste(im=img[n1], box=(ifx * rm, ify * rm))
-        img_main.paste(im=img[n2], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+        if n_tens != n_prev:
+            img_main.paste(im=img[n_tens], box=(ifx * rm, ify * rm))
+        img_main.paste(im=img[n_ones], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
 
-    # располагаем рисунок батареи на значок:
-    img_main.paste(im=img[n_bat], box=(0, iby * rm))
+    if n_tens != n_prev:
+        # располагаем рисунок батареи на значок:
+        img_main.paste(im=img[n_bat], box=(0, iby * rm))
 
     return img_main
 
@@ -122,13 +129,13 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
 def on_refresh_item(tray):
     """ Принудительное обновление изображения значка (даже если % совпадает). """
 
-    global g_current_battery_percent
-
     battery_percent = get_battery_percent()
-    g_current_battery_percent = battery_percent
 
     tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
     tray.title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
+
+    global g_previous_battery_percent
+    g_previous_battery_percent = battery_percent
 
 
 def on_exit_item(tray):
@@ -143,8 +150,7 @@ def on_exit_item(tray):
 def auto_check_battery_percent(tray) -> None:
     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray). """
 
-    global g_current_battery_percent
-
+    global g_previous_battery_percent
     tray.visible = True
 
     for _ in range(1000000000):
@@ -153,10 +159,10 @@ def auto_check_battery_percent(tray) -> None:
 
         battery_percent = get_battery_percent()
 
-        if battery_percent != g_current_battery_percent:
-            g_current_battery_percent = battery_percent
+        if battery_percent != g_previous_battery_percent:
             tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
             tray.title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
+            g_previous_battery_percent = battery_percent
 
         sleep(REFRESH_PAUSE_SEC)
         print(f'{_ = } | ', end='')
@@ -165,24 +171,25 @@ def auto_check_battery_percent(tray) -> None:
 def main():
     """ Создаёт объект значка в трее с изображением и меню. """
 
-    global g_current_battery_percent
-
     battery_percent = get_battery_percent()
-    g_current_battery_percent = battery_percent
 
     tray_ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent)
     tray_title = str(battery_percent) + '%' if battery_percent is not None else NO_BATTERY_TEXT
     tray_menu = pystray.Menu(pystray.MenuItem(text='Refresh % !', action=on_refresh_item, default=True),
                              pystray.MenuItem(text='Exit !', action=on_exit_item))
     tray = pystray.Icon(name='Battery Percent', icon=tray_ico, title=tray_title, menu=tray_menu)
+
     tray.SETUP_THREAD_TIMEOUT = 0
+
+    global g_previous_battery_percent
+    g_previous_battery_percent = battery_percent
 
     tray.run(setup=auto_check_battery_percent)
     # tray.run()
 
 
 if __name__ == '__main__':
-    g_current_battery_percent = 101
+    g_previous_battery_percent = 101
     g_stop = False
     img_tray_ico = Image.new(mode='RGBA',
                              size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
