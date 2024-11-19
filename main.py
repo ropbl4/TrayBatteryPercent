@@ -9,7 +9,8 @@ import painting
 # IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
-REFRESH_PAUSE_SEC = 5
+REFRESH_PAUSE_SEC_MORE = 5
+REFRESH_PAUSE_SEC_LESS = 1
 
 MAIN_SIZE_X = painting.MAIN_SIZE_X
 MAIN_SIZE_Y = painting.MAIN_SIZE_Y
@@ -168,7 +169,10 @@ def auto_check_battery_percent(tray) -> None:
             tray.title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
             g_previous_battery_percent = battery_percent
 
-        sleep(REFRESH_PAUSE_SEC)
+        if battery_percent > 21:
+            sleep(REFRESH_PAUSE_SEC_MORE)
+        else:
+            sleep(REFRESH_PAUSE_SEC_LESS)
         print(f'{_ = } | ', end='')
 
 
@@ -202,6 +206,6 @@ if __name__ == '__main__':
 
     main()
 
-# todo: less PAUSE_SEC if < 21%
+
 # todo: light theme
 # todo: many screen resolutions...
