@@ -2,6 +2,7 @@ import psutil
 import pystray
 from PIL import Image
 from time import sleep
+import winreg
 
 import painting
 
@@ -77,6 +78,16 @@ def get_img_digits_list() -> list[Image]:
         return get_from_image_img_digits_list()
     else:
         return painting.create_img_digits_list()
+
+
+def is_theme_light():
+    reg_path_hkey = winreg.HKEY_CURRENT_USER
+    reg_path_folder = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+
+    reg_path_full = winreg.OpenKey(reg_path_hkey, reg_path_folder)
+    light_theme = winreg.QueryValueEx(reg_path_full, 'SystemUsesLightTheme')
+
+    return light_theme[0]
 
 
 def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | None) -> Image:
@@ -214,14 +225,15 @@ def main():
 
 
 if __name__ == '__main__':
-    g_previous_battery_percent = BAT_FIRST_INIT
-    g_stop = False
-    img_tray_ico = Image.new(mode='RGBA',
-                             size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
-                             color=(0, 0, 0, 0))
-    img_digits_list = get_img_digits_list()
-
-    main()
+    # g_previous_battery_percent = BAT_FIRST_INIT
+    # g_stop = False
+    # img_tray_ico = Image.new(mode='RGBA',
+    #                          size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
+    #                          color=(0, 0, 0, 0))
+    # img_digits_list = get_img_digits_list()
+    #
+    # main()
+    print(is_theme_light())
 
 
 # todo: light theme
