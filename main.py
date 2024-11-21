@@ -10,7 +10,7 @@ import painting
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
 REFRESH_PAUSE_SEC_MORE = 5
-REFRESH_PAUSE_SEC_LESS = 1
+REFRESH_PAUSE_SEC_LESS = 5
 
 MAIN_SIZE_X = painting.MAIN_SIZE_X
 MAIN_SIZE_Y = painting.MAIN_SIZE_Y
@@ -82,7 +82,7 @@ def get_img_digits_list() -> list[Image]:
 def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | None) -> Image:
     """ Вставляет на значок изображения с нужными цифрами и батареей в правильные места. """
 
-    print('I refresh %')
+    print('I refresh %', end=' | ')
     # если нет батареи (мы на PC):
     if bat_perc == NO_BAT:
         return img[20]
@@ -93,24 +93,40 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
     ibn = INDENT_BETWEEN_NUMBERS
     iby = INDENT_BATTERY_Y
     rm = ICO_RESOLUTION_MULTIPLIER
-    prev_bat = g_previous_battery_percent
+    # prev_bat = g_previous_battery_percent
 
     n_tens = bat_perc // 10
-    n_prev = prev_bat // 10
+    # n_prev = prev_bat // 10
+
+    import random
+    rng_color = random.choice((
+        # (255, 255, 255, 255),   # white (dark, high, no_plug)
+        # (0, 0, 0, 255),         # black (light, high, no_plug)
+        # (0, 255, 0, 255),       # green (light + dark, low + high, plug)
+        (255, 0, 0, 255),       # red
+        # (255, 255, 0, 255),     # yellow
+        # (255, 50, 0, 255),      #
+        # (255, 100, 0, 255),     #
+        # (255, 150, 0, 255),     #
+        # (255, 200, 0, 255),     #
+    ))
+    print(f'{rng_color = }')
 
     # если кол-во цифр в числе меняется (и это не первый вывод числа) - ...
     # ... очищаем значок от предыдущих цифр прозрачным прямоугольником:
-    if n_tens != n_prev and prev_bat != BAT_FIRST_INIT:
-        img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
+    # if n_tens != n_prev and prev_bat != BAT_FIRST_INIT:
+    img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
+        # img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, DIGIT_SIZE_Y * rm))
+        # img_main.show()
 
     # располагаем цифры на значок в нужные места:
     if bat_perc == 100:
-        img_main.paste(im=img[1], box=(0 * rm, ify * rm))
-        img_main.paste(im=img[0], box=(5 * rm, ify * rm))
-        img_main.paste(im=img[0], box=(10 * rm, ify * rm))
+        img_main.paste(im=rng_color, box=(0 * rm, ify * rm), mask=img[1])
+        img_main.paste(im=rng_color, box=(5 * rm, ify * rm), mask=img[0])
+        img_main.paste(im=rng_color, box=(10 * rm, ify * rm), mask=img[0])
         n_bat = 19
     elif bat_perc < 10:
-        img_main.paste(im=img[bat_perc], box=(5 * rm, ify * rm))
+        img_main.paste(im=rng_color, box=(5 * rm, ify * rm), mask=img[bat_perc])
         n_bat = 10
     else:
         n_ones = bat_perc % 10
@@ -119,13 +135,14 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
         if n_tens == 1:
             ifx -= 1
 
-        if n_tens != n_prev:
-            img_main.paste(im=img[n_tens], box=(ifx * rm, ify * rm))
-        img_main.paste(im=img[n_ones], box=((ifx + digit_size_x + ibn) * rm, ify * rm))
+        # if n_tens != n_prev:
+        img_main.paste(im=rng_color, box=(ifx * rm, ify * rm), mask=img[n_tens])
+        img_main.paste(im=rng_color, box=((ifx + digit_size_x + ibn) * rm, ify * rm), mask=img[n_ones])
 
-    if n_tens != n_prev:
+    # if n_tens != n_prev:
         # располагаем рисунок батареи на значок:
-        img_main.paste(im=img[n_bat], box=(0, iby * rm))
+        # img_main.paste(im=img[n_bat], box=(0, iby * rm))
+    img_main.paste(im=rng_color, box=(0, iby * rm), mask=img[n_bat])
 
     return img_main
 
