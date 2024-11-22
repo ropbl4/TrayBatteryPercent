@@ -275,3 +275,4 @@ if __name__ == '__main__':
     main()
 
 # todo: many screen resolutions...
+# todo: g_prev_.. first init + maybe no need ico and title in main()
