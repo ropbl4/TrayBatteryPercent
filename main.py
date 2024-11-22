@@ -10,8 +10,8 @@ import painting
 # IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
-REFRESH_PAUSE_SEC_HIGH = 5
-REFRESH_PAUSE_SEC_lOW = 5
+REFRESH_PAUSE_SEC_HIGH = 1
+REFRESH_PAUSE_SEC_lOW = 1
 PERCENT_LOW = 20
 PERCENT_LOWEST = 10
 
@@ -65,6 +65,8 @@ def get_battery_percent() -> tuple[int, bool]:
     print(f'Random {battery_percent = }, {charging = }')
 
     # battery_percent = g_current_battery_percent - 1
+    # battery_percent = 50
+    # charging = False
 
     return battery_percent, charging
 
@@ -88,19 +90,26 @@ def get_img_digits_list() -> list[Image]:
 
 
 def is_theme_light() -> bool:
-    """ Проверяем, светлая тема или тёмная (через параметр в реестре). """
+    """ Проверяет, светлая тема или тёмная (через параметр в реестре). """
 
     reg_path_hkey = winreg.HKEY_CURRENT_USER
     reg_path_folder = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize'
 
-    reg_path_full = winreg.OpenKey(reg_path_hkey, reg_path_folder)
-    light_theme = winreg.QueryValueEx(reg_path_full, 'SystemUsesLightTheme')
+    try:
+        with winreg.OpenKey(reg_path_hkey, reg_path_folder) as reg_key:
+            print(f'{reg_path_hkey = }, {reg_key = }')
+            light_theme = winreg.QueryValueEx(reg_key, 'SystemUsesLightTheme')
 
-    return bool(light_theme[0])
+        return bool(light_theme[0])
+
+    except FileNotFoundError:
+        print('Key or value not found in registry.')
+
+    return False
 
 
-def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | None, charging: bool) -> Image:
-    """ Вставляет на значок изображения с нужными цифрами и батареей в правильные места и нужного цвета. """
+def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: bool, light_theme: bool) -> Image:
+    """ Вставляет на значок Image-объекты с нужными цифрами и батареей в правильные места и нужного цвета. """
 
     print('I refresh %', end=' | ')
     # если нет батареи (мы на PC):
@@ -123,7 +132,7 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
         color = (255, 0, 0, 255)        # red (light + dark, lowest, no_plug)
     elif bat_perc <= PERCENT_LOW:
         color = (255, 255, 0, 255)      # yellow (light + dark, low, no_plug)
-    elif is_theme_light():
+    elif light_theme:
         color = (0, 0, 0, 255)          # black (light, high, no_plug)
     else:
         color = (255, 255, 255, 255)    # white (dark, high, no_plug)
@@ -172,7 +181,6 @@ def change_percent_on_image(img_main: Image, img: list[Image], bat_perc: int | N
 
     # if n_tens != n_prev:
         # располагаем рисунок батареи на значок:
-        # img_main.paste(im=img[n_bat], box=(0, iby * rm))
     img_main.paste(im=color, box=(0, iby * rm), mask=img[n_bat])
 
     return img_main
@@ -182,13 +190,15 @@ def on_refresh_item(tray):
     """ Принудительное обновление изображения значка (даже если % совпадает). """
 
     battery_percent, charging = get_battery_percent()
+    light_theme = is_theme_light()
 
-    tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent, charging)
+    tray.icon = change_tray_ico(img_tray_ico, img_digits_list, battery_percent, charging, light_theme)
     tray.title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
 
-    global g_previous_battery_percent, g_previous_charging_status
-    g_previous_battery_percent = battery_percent
-    g_previous_charging_status = charging
+    global g_prev_bat_percent, g_prev_charging, g_prev_light_theme
+    g_prev_bat_percent = battery_percent
+    g_prev_charging = charging
+    g_prev_light_theme = light_theme
 
 
 def on_exit_item(tray):
@@ -203,7 +213,7 @@ def on_exit_item(tray):
 def auto_check_battery_percent(tray) -> None:
     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray). """
 
-    global g_previous_battery_percent, g_previous_charging_status
+    global g_prev_bat_percent, g_prev_charging, g_prev_light_theme
 
     tray.visible = True
 
@@ -212,13 +222,15 @@ def auto_check_battery_percent(tray) -> None:
             break
 
         battery_percent, charging = get_battery_percent()
+        light_theme = is_theme_light()
 
-        if battery_percent != g_previous_battery_percent or charging != g_previous_charging_status:
-            tray.icon = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent, charging)
+        if battery_percent != g_prev_bat_percent or charging != g_prev_charging or light_theme != g_prev_light_theme:
+            tray.icon = change_tray_ico(img_tray_ico, img_digits_list, battery_percent, charging, light_theme)
             tray.title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
 
-            g_previous_battery_percent = battery_percent
-            g_previous_charging_status = charging
+            g_prev_bat_percent = battery_percent
+            g_prev_charging = charging
+            g_prev_light_theme = light_theme
 
         if battery_percent > PERCENT_LOW + 1:
             sleep(REFRESH_PAUSE_SEC_HIGH)
@@ -231,8 +243,9 @@ def main():
     """ Создаёт объект значка в трее с изображением и меню. """
 
     battery_percent, charging = get_battery_percent()
+    light_theme = is_theme_light()
 
-    tray_ico = change_percent_on_image(img_tray_ico, img_digits_list, battery_percent, charging)
+    tray_ico = change_tray_ico(img_tray_ico, img_digits_list, battery_percent, charging, light_theme)
     tray_title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
     tray_menu = pystray.Menu(pystray.MenuItem(text='Refresh % !', action=on_refresh_item, default=True),
                              pystray.MenuItem(text='Exit !', action=on_exit_item))
@@ -240,17 +253,19 @@ def main():
 
     tray.SETUP_THREAD_TIMEOUT = 0
 
-    global g_previous_battery_percent, g_previous_charging_status
-    g_previous_battery_percent = battery_percent
-    g_previous_charging_status = charging
+    global g_prev_bat_percent, g_prev_charging, g_prev_light_theme
+    g_prev_bat_percent = battery_percent
+    g_prev_charging = charging
+    g_prev_light_theme = light_theme
 
     tray.run(setup=auto_check_battery_percent)
     # tray.run()
 
 
 if __name__ == '__main__':
-    g_previous_battery_percent = BAT_FIRST_INIT
-    g_previous_charging_status = BAT_FIRST_INIT
+    g_prev_bat_percent = BAT_FIRST_INIT
+    g_prev_charging = BAT_FIRST_INIT
+    g_prev_light_theme = None
     g_stop = False
     img_tray_ico = Image.new(mode='RGBA',
                              size=(MAIN_SIZE_X * ICO_RESOLUTION_MULTIPLIER, MAIN_SIZE_Y * ICO_RESOLUTION_MULTIPLIER),
