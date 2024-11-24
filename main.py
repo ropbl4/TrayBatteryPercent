@@ -10,8 +10,8 @@ import painting
 # IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
-REFRESH_PAUSE_SEC_HIGH = 5
-REFRESH_PAUSE_SEC_lOW = 1
+REFRESH_PAUSE_SEC_HIGH = 0.1
+REFRESH_PAUSE_SEC_lOW = 2
 PERCENT_LOW = 20
 PERCENT_LOWEST = 10
 
@@ -34,22 +34,22 @@ NO_BAT = -1
 def get_battery_percent() -> tuple[int, bool]:
     """ Возвращает текущий процент батареи (целое число) и статус подключения зарядки (bool). """
 
-    battery = psutil.sensors_battery()
-    print(f'{battery = }')
-
-    if battery is None:
-        return NO_BAT, False
-
-    battery_percent = battery.percent
-    charging = battery.power_plugged
+    # battery = psutil.sensors_battery()
+    # print(f'{battery = }')
+    #
+    # if battery is None:
+    #     return NO_BAT, False
+    #
+    # battery_percent = battery.percent
+    # charging = battery.power_plugged
 
     # from random import randint
     #
     # # rand_category = 2
     # rand_category = randint(0, 5)
-    # if rand_category == 0:
-    #     battery_percent = NO_BAT
-    # elif rand_category == 1:
+    # # if rand_category == 0:
+    # #     battery_percent = NO_BAT
+    # if rand_category == 1:
     #     battery_percent = 100
     # elif rand_category == 2:
     #     battery_percent = randint(0, 9)
@@ -58,14 +58,14 @@ def get_battery_percent() -> tuple[int, bool]:
     # else:
     #     battery_percent = randint(10, 99)  # for tests
     #
-    # rand_charge = randint(1, 3)
-    # charging = False if rand_charge <= 2 else True
-
-    print(f'Random {battery_percent = }, {charging = }')
+    # rand_charge = randint(1, 2)
+    # charging = False if rand_charge > 2 else True
+    #
+    # print(f'Random {battery_percent = }, {charging = }')
 
     # battery_percent = g_current_battery_percent - 1
-    # battery_percent = 50
-    # charging = False
+    battery_percent = 32
+    charging = False
 
     return battery_percent, charging
 
@@ -110,7 +110,7 @@ def is_theme_light() -> bool:
 def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: bool, light_theme: bool) -> Image:
     """ Вставляет на значок Image-объекты с нужными цифрами и батареей в правильные места и нужного цвета. """
 
-    print('I refresh %', end=' | ')
+    # print('I refresh %', end=' | ')
     # если нет батареи (мы на PC):
     if bat_perc == NO_BAT:
         return img[20]
@@ -122,16 +122,18 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
     iby = INDENT_BATTERY_Y
     rm = RM
 
-    if charging:
-        color = (0, 255, 0, 255)        # green (light + dark, low + high, plug)
-    elif bat_perc <= PERCENT_LOWEST:
-        color = (255, 0, 0, 255)        # red (light + dark, lowest, no_plug)
-    elif bat_perc <= PERCENT_LOW:
-        color = (255, 255, 0, 255)      # yellow (light + dark, low, no_plug)
-    elif light_theme:
-        color = (0, 0, 0, 255)          # black (light, high, no_plug)
-    else:
-        color = (255, 255, 255, 255)    # white (dark, high, no_plug)
+    color = (r, g, b, 255)
+    # if charging:
+    #     color = (r, g, b, 255)        # green (light + dark, low + high, plug)
+    #     # color = (0, 255, 0, 255)        # green (light + dark, low + high, plug)
+    # elif bat_perc <= PERCENT_LOWEST:
+    #     color = (255, 0, 0, 255)        # red (light + dark, lowest, no_plug)
+    # elif bat_perc <= PERCENT_LOW:
+    #     color = (255, 255, 0, 255)      # yellow (light + dark, low, no_plug)
+    # elif light_theme:
+    #     color = (0, 0, 0, 255)          # black (light, high, no_plug)
+    # else:
+    #     color = (255, 255, 255, 255)    # white (dark, high, no_plug)
 
     # import random
     # color = random.choice((
@@ -145,7 +147,7 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
     #     # (255, 150, 0, 255),     #
     #     # (255, 200, 0, 255),     #
     # ))
-    print(f'{color = }')
+    # print(f'{color = }')
 
     # очищает значок от предыдущих цифр прозрачным прямоугольником:
     img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
@@ -178,7 +180,7 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
 
 def on_refresh_item(tray):
     """ Принудительное обновление изображения значка (даже если % совпадает). """
-
+    on_exit_item(tray)  # for tests #########################
     battery_percent, charging = get_battery_percent()
     light_theme = is_theme_light()
 
@@ -204,28 +206,32 @@ def auto_check_battery_percent(tray) -> None:
     """ Авто-проверка процента батареи (в отдельном потоке средствами pystray). """
 
     global g_prev_bat_percent, g_prev_charging, g_prev_light_theme
-
+    global r, g, b
     tray.visible = True
 
-    while True:
-        if g_stop:
-            break
+    # while True:
+    for r in range(0, 256, 25):
+        for g in range(0, 256, 25):
+            for b in range(0, 256, 25):
 
-        battery_percent, charging = get_battery_percent()
-        light_theme = is_theme_light()
+                if g_stop:
+                    break
 
-        if battery_percent != g_prev_bat_percent or charging != g_prev_charging or light_theme != g_prev_light_theme:
-            tray.icon = change_tray_ico(img_tray_ico, img_digits_list, battery_percent, charging, light_theme)
-            tray.title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
+                battery_percent, charging = get_battery_percent()
+                light_theme = is_theme_light()
 
-            g_prev_bat_percent = battery_percent
-            g_prev_charging = charging
-            g_prev_light_theme = light_theme
+                if battery_percent == g_prev_bat_percent or charging != g_prev_charging or light_theme != g_prev_light_theme:
+                    tray.icon = change_tray_ico(img_tray_ico, img_digits_list, battery_percent, charging, light_theme)
+                    tray.title = str(battery_percent) + '%' if battery_percent != NO_BAT else NO_BATTERY_TEXT
 
-        if battery_percent > PERCENT_LOW + 1:
-            sleep(REFRESH_PAUSE_SEC_HIGH)
-        else:
-            sleep(REFRESH_PAUSE_SEC_lOW)
+                    g_prev_bat_percent = battery_percent
+                    g_prev_charging = charging
+                    g_prev_light_theme = light_theme
+
+                if battery_percent > PERCENT_LOW + 1:
+                    sleep(REFRESH_PAUSE_SEC_HIGH)
+                else:
+                    sleep(REFRESH_PAUSE_SEC_lOW)
 
 
 def main():
@@ -245,12 +251,12 @@ if __name__ == '__main__':
     g_prev_charging = None
     g_prev_light_theme = None
     g_stop = False
-
+    r, g, b = 0, 0, 0
     img_tray_ico = Image.new(mode='RGBA', size=(MAIN_SIZE_X * RM, MAIN_SIZE_Y * RM), color=(0, 0, 0, 0))
     img_digits_list = get_img_digits_list()
 
     main()
 
 # todo: many screen resolutions...
-# todo: g_prev_.. first init + maybe no need ico and title in main()
-# todo: change colors: green (light), ..
+# todo: black background on light theme with green, yellow..
+# todo: view w.o. bat w. big nums ?
