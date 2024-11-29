@@ -21,7 +21,7 @@ DIGIT_SIZE_X = painting.DIGIT_SIZE_X
 DIGIT_SIZE_Y = painting.DIGIT_SIZE_Y
 
 INDENT_FIRST_NUMBER_X = 3
-INDENT_FIRST_NUMBER_Y = 1
+INDENT_NUMBERS_Y = 0
 INDENT_BETWEEN_NUMBERS = 0
 INDENT_BATTERY_Y = 9
 
@@ -35,7 +35,7 @@ def get_battery_percent() -> tuple[int, bool]:
     """ Возвращает текущий процент батареи (целое число) и статус подключения зарядки (bool). """
 
     # battery = psutil.sensors_battery()
-    # print(f'{battery = }')
+    # print(f'\n{battery = }', end=' | ')
     #
     # if battery is None:
     #     return NO_BAT, False
@@ -61,7 +61,7 @@ def get_battery_percent() -> tuple[int, bool]:
     rand_charge = randint(1, 3)
     charging = False if rand_charge <= 2 else True
 
-    print(f'Random {battery_percent = }, {charging = }')
+    print(f'\nRandom {battery_percent = }, {charging = }', end=' | ')
 
     # battery_percent = g_current_battery_percent - 1
     # battery_percent = 50
@@ -110,48 +110,51 @@ def is_theme_light() -> bool:
 def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: bool, light_theme: bool) -> Image:
     """ Вставляет на значок Image-объекты с нужными цифрами и батареей в правильные места и нужного цвета. """
 
-    print('I refresh %', end=' | ')
+    print('I refresh %', end='')
     # если нет батареи (мы на PC):
     if bat_perc == NO_BAT:
         return img[20]
 
     digit_size_x = DIGIT_SIZE_X
     ifx = INDENT_FIRST_NUMBER_X
-    ify = INDENT_FIRST_NUMBER_Y
+    ify = INDENT_NUMBERS_Y
     ibn = INDENT_BETWEEN_NUMBERS
     iby = INDENT_BATTERY_Y
     rm = RM
 
-    if charging:
-        color = (0, 255, 0, 255)        # green (light + dark, low + high, plug)
-    elif bat_perc <= PERCENT_LOWEST:
-        color = (255, 0, 0, 255)        # red (light + dark, lowest, no_plug)
-    elif bat_perc <= PERCENT_LOW:
-        color = (255, 255, 0, 255)      # yellow (light + dark, low, no_plug)
-    # elif light_theme:
-    #     color = (0, 0, 0, 255)          # black (light, high, no_plug)
-    else:
-        color = (255, 255, 255, 255)    # white (dark, high, no_plug)
+    if light_theme:
+        if charging:
+            color = (0, 255, 0, 255)        # green
+            color_bg = (0, 0, 0, 255)       # black
+        elif bat_perc <= PERCENT_LOWEST:
+            color = (255, 0, 0, 255)        # red
+            color_bg = (0, 0, 0, 255)
+        elif bat_perc <= PERCENT_LOW:
+            color = (255, 255, 0, 255)      # yellow
+            color_bg = (0, 0, 0, 255)
+        else:
+            color = (0, 0, 0, 255)          # black
+            color_bg = (0, 0, 0, 0)         # transparent
+    else:                                   # if dark theme:
+        if charging:
+            color = (0, 255, 0, 255)        # green
+            color_bg = (0, 0, 0, 0)
+        elif bat_perc <= PERCENT_LOWEST:
+            color = (255, 0, 0, 255)        # red
+            color_bg = (0, 0, 0, 0)
+        elif bat_perc <= PERCENT_LOW:
+            color = (255, 255, 0, 255)      # yellow
+            color_bg = (0, 0, 0, 0)
+        else:
+            color = (255, 255, 255, 255)    # white
+            color_bg = (0, 0, 0, 0)
 
-    # import random
-    # color = random.choice((
-    #     # (255, 255, 255, 255),   # white (dark, high, no_plug)
-    #     # (0, 0, 0, 255),         # black (light, high, no_plug)
-    #     # (0, 255, 0, 255),       # green (light + dark, low + high, plug)
-    #     (255, 0, 0, 255),       # red
-    #     # (255, 255, 0, 255),     # yellow
-    #     # (255, 50, 0, 255),      #
-    #     # (255, 100, 0, 255),     #
-    #     # (255, 150, 0, 255),     #
-    #     # (255, 200, 0, 255),     #
-    # ))
-    print(f'{color = }')
+    # если цифры упираются в границе значка и фон чёрный - отодвинем чуть ниже, а то не красиво:
+    if ify == 0 and color_bg[3] > 0:
+        ify = 1
 
     # очищает значок от предыдущих цифр прозрачным прямоугольником:
-    if light_theme:
-        img_main.paste(im='#000000ff', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
-    else:
-        img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
+    img_main.paste(im=color_bg, box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
 
     # располагает цифры на значок в нужные места:
     if bat_perc == 100:
@@ -255,5 +258,7 @@ if __name__ == '__main__':
     main()
 
 # todo: many screen resolutions...
-# todo: black background on light theme with green, yellow..
 # todo: view w.o. bat w. big nums ?
+# todo: read args ?
+# todo: 125%+ ?
+# todo: Win-API callback ?..
