@@ -10,8 +10,8 @@ import painting
 # IMAGE_BATTERY_PATH = IMAGES_PATH + 'bat.ico'
 # IMAGE_DIGITS_PATH = IMAGES_PATH + 'digits/digits.ico'
 
-REFRESH_PAUSE_SEC_HIGH = 5
-REFRESH_PAUSE_SEC_lOW = 1
+REFRESH_PAUSE_SEC_HIGH = 2
+REFRESH_PAUSE_SEC_lOW = 2
 PERCENT_LOW = 20
 PERCENT_LOWEST = 10
 
@@ -21,7 +21,7 @@ DIGIT_SIZE_X = painting.DIGIT_SIZE_X
 DIGIT_SIZE_Y = painting.DIGIT_SIZE_Y
 
 INDENT_FIRST_NUMBER_X = 3
-INDENT_FIRST_NUMBER_Y = 0
+INDENT_FIRST_NUMBER_Y = 1
 INDENT_BETWEEN_NUMBERS = 0
 INDENT_BATTERY_Y = 9
 
@@ -34,32 +34,32 @@ NO_BAT = -1
 def get_battery_percent() -> tuple[int, bool]:
     """ Возвращает текущий процент батареи (целое число) и статус подключения зарядки (bool). """
 
-    battery = psutil.sensors_battery()
-    print(f'{battery = }')
-
-    if battery is None:
-        return NO_BAT, False
-
-    battery_percent = battery.percent
-    charging = battery.power_plugged
-
-    # from random import randint
+    # battery = psutil.sensors_battery()
+    # print(f'{battery = }')
     #
-    # # rand_category = 2
-    # rand_category = randint(0, 5)
-    # if rand_category == 0:
-    #     battery_percent = NO_BAT
-    # elif rand_category == 1:
-    #     battery_percent = 100
-    # elif rand_category == 2:
-    #     battery_percent = randint(0, 9)
-    # elif rand_category == 3:
-    #     battery_percent = randint(10, 19)
-    # else:
-    #     battery_percent = randint(10, 99)  # for tests
+    # if battery is None:
+    #     return NO_BAT, False
     #
-    # rand_charge = randint(1, 3)
-    # charging = False if rand_charge <= 2 else True
+    # battery_percent = battery.percent
+    # charging = battery.power_plugged
+
+    from random import randint
+
+    # rand_category = 2
+    rand_category = randint(1, 5)
+    if rand_category == 0:
+        battery_percent = NO_BAT
+    elif rand_category == 1:
+        battery_percent = 100
+    elif rand_category == 2:
+        battery_percent = randint(0, 9)
+    elif rand_category == 3:
+        battery_percent = randint(10, 19)
+    else:
+        battery_percent = randint(10, 99)  # for tests
+
+    rand_charge = randint(1, 3)
+    charging = False if rand_charge <= 2 else True
 
     print(f'Random {battery_percent = }, {charging = }')
 
@@ -128,8 +128,8 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
         color = (255, 0, 0, 255)        # red (light + dark, lowest, no_plug)
     elif bat_perc <= PERCENT_LOW:
         color = (255, 255, 0, 255)      # yellow (light + dark, low, no_plug)
-    elif light_theme:
-        color = (0, 0, 0, 255)          # black (light, high, no_plug)
+    # elif light_theme:
+    #     color = (0, 0, 0, 255)          # black (light, high, no_plug)
     else:
         color = (255, 255, 255, 255)    # white (dark, high, no_plug)
 
@@ -148,7 +148,10 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
     print(f'{color = }')
 
     # очищает значок от предыдущих цифр прозрачным прямоугольником:
-    img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
+    if light_theme:
+        img_main.paste(im='#000000ff', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
+    else:
+        img_main.paste(im='#00000000', box=(0, 0, MAIN_SIZE_X * rm, MAIN_SIZE_Y * rm))
 
     # располагает цифры на значок в нужные места:
     if bat_perc == 100:
