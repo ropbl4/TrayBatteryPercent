@@ -3,6 +3,7 @@ import pystray
 from PIL import Image
 from time import sleep
 import winreg
+import argparse
 
 import painting
 
@@ -70,7 +71,6 @@ def get_battery_percent() -> tuple[int, bool]:
     return battery_percent, charging
 
 
-# todo: если есть изображения цифр и батареи в определённой папке - по_CROP_ать их оттуда и заполнить список ими.
 def get_from_image_img_digits_list() -> list[Image]:
     """ Вырезает цифры и батарею с изображений на диске,
         заполняет ими массив объектов PIL.Image. """
@@ -107,6 +107,40 @@ def is_theme_light() -> bool:
     return False
 
 
+def get_color_and_bg(light_theme: bool, charging: bool, bat_perc: int) -> tuple:
+    """ Возвращает картеж из 2-х цветов: цвет цифр с батареей и цвет фона. 
+        Оба цвета - картежи из 4-х целых чисел (red, green, blue, transparency). """
+    
+    if light_theme:
+        if charging:
+            color = g_args.light_charging_color if g_args.light_charging_color else (0, 255, 0, 255)  # green
+            color_bg = g_args.light_charging_bg if g_args.light_charging_bg else (0, 0, 0, 255)       # black
+        elif bat_perc <= PERCENT_LOWEST:
+            color = g_args.light_lowest_color if g_args.light_lowest_color else (255, 0, 0, 255)      # red
+            color_bg = g_args.light_lowest_bg if g_args.light_lowest_bg else (0, 0, 0, 255)
+        elif bat_perc <= PERCENT_LOW:
+            color = g_args.light_low_color if g_args.light_low_color else (255, 255, 0, 255)          # yellow
+            color_bg = g_args.light_low_bg if g_args.light_low_bg else (0, 0, 0, 255)
+        else:
+            color = g_args.light_color if g_args.light_color else (0, 0, 0, 255)                      # black
+            color_bg = g_args.light_bg if g_args.light_bg else (0, 0, 0, 0)                           # transparent
+    else:                                                                                             # if dark theme:
+        if charging:
+            color = g_args.dark_charging_color if g_args.dark_charging_color else (0, 255, 0, 255)    # green
+            color_bg = g_args.dark_charging_bg if g_args.dark_charging_bg else (0, 0, 0, 0)
+        elif bat_perc <= PERCENT_LOWEST:
+            color = g_args.dark_lowest_color if g_args.dark_lowest_color else (255, 0, 0, 255)        # red
+            color_bg = g_args.dark_lowest_bg if g_args.dark_lowest_bg else (0, 0, 0, 0)
+        elif bat_perc <= PERCENT_LOW:
+            color = g_args.dark_low_color if g_args.dark_low_color else (255, 255, 0, 255)            # yellow
+            color_bg = g_args.dark_low_bg if g_args.dark_low_bg else (0, 0, 0, 0)
+        else:
+            color = g_args.dark_color if g_args.dark_color else (255, 255, 255, 255)                  # white
+            color_bg = g_args.dark_bg if g_args.dark_bg else (0, 0, 0, 0)
+    
+    return tuple(color), tuple(color_bg)
+
+
 def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: bool, light_theme: bool) -> Image:
     """ Вставляет на значок Image-объекты с нужными цифрами и батареей в правильные места и нужного цвета. """
 
@@ -122,32 +156,7 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
     iby = INDENT_BATTERY_Y
     rm = RM
 
-    if light_theme:
-        if charging:
-            color = (0, 255, 0, 255)        # green
-            color_bg = (0, 0, 0, 255)       # black
-        elif bat_perc <= PERCENT_LOWEST:
-            color = (255, 0, 0, 255)        # red
-            color_bg = (0, 0, 0, 255)
-        elif bat_perc <= PERCENT_LOW:
-            color = (255, 255, 0, 255)      # yellow
-            color_bg = (0, 0, 0, 255)
-        else:
-            color = (0, 0, 0, 255)          # black
-            color_bg = (0, 0, 0, 0)         # transparent
-    else:                                   # if dark theme:
-        if charging:
-            color = (0, 255, 0, 255)        # green
-            color_bg = (0, 0, 0, 0)
-        elif bat_perc <= PERCENT_LOWEST:
-            color = (255, 0, 0, 255)        # red
-            color_bg = (0, 0, 0, 0)
-        elif bat_perc <= PERCENT_LOW:
-            color = (255, 255, 0, 255)      # yellow
-            color_bg = (0, 0, 0, 0)
-        else:
-            color = (255, 255, 255, 255)    # white
-            color_bg = (0, 0, 0, 0)
+    color, color_bg = get_color_and_bg(light_theme, charging, bat_perc)
 
     # если цифры упираются в границе значка и фон чёрный - отодвинем чуть ниже, а то не красиво:
     if ify == 0 and color_bg[3] > 0:
@@ -234,6 +243,34 @@ def auto_check_battery_percent(tray) -> None:
             sleep(REFRESH_PAUSE_SEC_lOW)
 
 
+def parse_console_arguments() -> argparse.Namespace:
+    """ Считывает аргументы, переданные в командную строку при запуске программы. """
+    
+    parser = argparse.ArgumentParser(description='Set some colors, different from default.')
+
+    parser.add_argument('-lcc', '--light_charging_color', dest='light_charging_color', nargs=4, type=int)
+    parser.add_argument('-lcb', '--light_charging_bg', dest='light_charging_bg', nargs=4, type=int)
+    parser.add_argument('-lltc', '--light_lowest_color', dest='light_lowest_color', nargs=4, type=int)
+    parser.add_argument('-lltb', '--light_lowest_bg', dest='light_lowest_bg', nargs=4, type=int)
+    parser.add_argument('-llc', '--light_low_color', dest='light_low_color', nargs=4, type=int)
+    parser.add_argument('-llb', '--light_low_bg', dest='light_low_bg', nargs=4, type=int)
+    parser.add_argument('-lc', '--light_color', dest='light_color', nargs=4, type=int)
+    parser.add_argument('-lb', '--light_bg', dest='light_bg', nargs=4, type=int)
+
+    parser.add_argument('-dcc', '--dark_charging_color', dest='dark_charging_color', nargs=4, type=int)
+    parser.add_argument('-dcb', '--dark_charging_bg', dest='dark_charging_bg', nargs=4, type=int)
+    parser.add_argument('-dltc', '--dark_lowest_color', dest='dark_lowest_color', nargs=4, type=int)
+    parser.add_argument('-dltb', '--dark_lowest_bg', dest='dark_lowest_bg', nargs=4, type=int)
+    parser.add_argument('-dlc', '--dark_low_color', dest='dark_low_color', nargs=4, type=int)
+    parser.add_argument('-dlb', '--dark_low_bg', dest='dark_low_bg', nargs=4, type=int)
+    parser.add_argument('-dc', '--dark_color', dest='dark_color', nargs=4, type=int)
+    parser.add_argument('-db', '--dark_bg', dest='dark_bg', nargs=4, type=int)
+
+    args = parser.parse_args()
+    print(args)
+    return args
+
+
 def main():
     """ Создаёт объект значка в трее с изображением и меню. """
 
@@ -251,14 +288,15 @@ if __name__ == '__main__':
     g_prev_charging = None
     g_prev_light_theme = None
     g_stop = False
+    g_args = parse_console_arguments()
 
     img_tray_ico = Image.new(mode='RGBA', size=(MAIN_SIZE_X * RM, MAIN_SIZE_Y * RM), color=(0, 0, 0, 0))
     img_digits_list = get_img_digits_list()
 
     main()
 
-# todo: many screen resolutions...
+# todo: если есть изображения цифр и батареи в определённой папке - по_CROP_ать их оттуда и заполнить список ими.
 # todo: view w.o. bat w. big nums ?
-# todo: read args ?
+# todo: many screen resolutions...
 # todo: 125%+ ?
 # todo: Win-API callback ?..
