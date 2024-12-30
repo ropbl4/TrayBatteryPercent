@@ -35,38 +35,13 @@ NO_BAT = -1
 def get_battery_percent() -> tuple[int, bool]:
     """ Возвращает текущий процент батареи (целое число) и статус подключения зарядки (bool). """
 
-    # battery = psutil.sensors_battery()
-    # print(f'\n{battery = }', end=' | ')
-    #
-    # if battery is None:
-    #     return NO_BAT, False
-    #
-    # battery_percent = battery.percent
-    # charging = battery.power_plugged
+    battery = psutil.sensors_battery()
 
-    from random import randint
+    if battery is None:
+        return NO_BAT, False
 
-    # rand_category = 2
-    rand_category = randint(1, 5)
-    if rand_category == 0:
-        battery_percent = NO_BAT
-    elif rand_category == 1:
-        battery_percent = 100
-    elif rand_category == 2:
-        battery_percent = randint(0, 9)
-    elif rand_category == 3:
-        battery_percent = randint(10, 19)
-    else:
-        battery_percent = randint(10, 99)  # for tests
-
-    rand_charge = randint(1, 3)
-    charging = False if rand_charge <= 2 else True
-
-    print(f'\nRandom {battery_percent = }, {charging = }', end=' | ')
-
-    # battery_percent = g_current_battery_percent - 1
-    # battery_percent = 50
-    # charging = False
+    battery_percent = battery.percent
+    charging = battery.power_plugged
 
     return battery_percent, charging
 
@@ -82,7 +57,7 @@ def get_img_digits_list() -> list[Image]:
     """ Возвращает список изображений с цифрами и батареей,
         полученный с картинок или, если их нет, нарисованный. """
 
-    if False:  # если найдена папка /img/ и в ней есть картинка с цифрами и батареей...
+    if False:  # если найдена папка /img/ и в ней есть картинка с цифрами и батареей... Но я не стал это делать.
         return get_from_image_img_digits_list()
     else:
         return painting.create_img_digits_list()
@@ -108,7 +83,8 @@ def is_theme_light() -> bool:
 
 
 def get_color_and_bg(light_theme: bool, charging: bool, bat_perc: int) -> tuple:
-    """ Возвращает картеж из 2-х цветов: цвет цифр с батареей и цвет фона. 
+    """ Получает цвета из параметров запуска скрипта (argparse).
+        Возвращает картеж из 2-х цветов: цвет цифр с батареей и цвет фона.
         Оба цвета - картежи из 4-х целых чисел (red, green, blue, transparency). """
     
     if light_theme:
@@ -144,10 +120,9 @@ def get_color_and_bg(light_theme: bool, charging: bool, bat_perc: int) -> tuple:
 def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: bool, light_theme: bool) -> Image:
     """ Вставляет на значок Image-объекты с нужными цифрами и батареей в правильные места и нужного цвета. """
 
-    print('I refresh %', end='')
     # если нет батареи (мы на PC):
     if bat_perc == NO_BAT:
-        return img[20]
+        return img[20]      # в элементе "20" находится изображение с отсутствующей батареей.
 
     digit_size_x = DIGIT_SIZE_X
     ifx = INDENT_FIRST_NUMBER_X
@@ -158,7 +133,7 @@ def change_tray_ico(img_main: Image, img: list[Image], bat_perc: int, charging: 
 
     color, color_bg = get_color_and_bg(light_theme, charging, bat_perc)
 
-    # если цифры упираются в границе значка и фон чёрный - отодвинем чуть ниже, а то не красиво:
+    # если цифры упираются в границе значка и фон не прозрачный - отодвинем чуть ниже, а то не красиво:
     if ify == 0 and color_bg[3] > 0:
         ify = 1
 
@@ -267,7 +242,7 @@ def parse_console_arguments() -> argparse.Namespace:
     parser.add_argument('-db', '--dark_bg', dest='dark_bg', nargs=4, type=int)
 
     args = parser.parse_args()
-    print(args)
+
     return args
 
 
